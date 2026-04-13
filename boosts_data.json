@@ -1,0 +1,250 @@
+[
+  {
+    "messageID": "1493236234519318650",
+    "boostInfo": {
+      "Dungeons": 1,
+      "KeyLevel": 10,
+      "Price": 390000,
+      "Note": "test",
+      "CutBooster": 63375,
+      "CutAdventure": 136500,
+      "CreatorID": "161949563987558402",
+      "ChannelID": "1462850575724052565",
+      "KeysRequired": 0
+    },
+    "signups": [
+      {
+        "User": {
+          "id": "161949563987558402",
+          "email": "",
+          "username": "teito.",
+          "avatar": "a23523f7e994a066d387d096958fb486",
+          "locale": "",
+          "discriminator": "0",
+          "token": "",
+          "verified": false,
+          "mfa_enabled": false,
+          "bot": false,
+          "public_flags": 64,
+          "premium_type": 0,
+          "system": false,
+          "flags": 64
+        },
+        "Role": "TankR",
+        "Timestamp": "2026-04-13T15:07:44.0184349+02:00"
+      },
+      {
+        "User": {
+          "id": "161949563987558402",
+          "email": "",
+          "username": "teito.",
+          "avatar": "a23523f7e994a066d387d096958fb486",
+          "locale": "",
+          "discriminator": "0",
+          "token": "",
+          "verified": false,
+          "mfa_enabled": false,
+          "bot": false,
+          "public_flags": 64,
+          "premium_type": 0,
+          "system": false,
+          "flags": 64
+        },
+        "Role": "DpsR",
+        "Timestamp": "2026-04-13T15:07:45.2555253+02:00"
+      },
+      {
+        "User": {
+          "id": "213767844679254016",
+          "email": "",
+          "username": "naphylia",
+          "avatar": "2934b5a6b6e6c189e261b1e9824792e9",
+          "locale": "",
+          "discriminator": "0",
+          "token": "",
+          "verified": false,
+          "mfa_enabled": false,
+          "bot": false,
+          "public_flags": 0,
+          "premium_type": 0,
+          "system": false,
+          "flags": 0
+        },
+        "Role": "DpsR",
+        "Timestamp": "2026-04-13T15:07:51.8301312+02:00"
+      }
+    ],
+    "keystones": null,
+    "cancelled": true
+  },
+  {
+    "messageID": "1493235510695428127",
+    "boostInfo": {
+      "Dungeons": 1,
+      "KeyLevel": 10,
+      "Price": 390000,
+      "Note": "test",
+      "CutBooster": 63375,
+      "CutAdventure": 136500,
+      "CreatorID": "161949563987558402",
+      "ChannelID": "1462850575724052565",
+      "KeysRequired": 0
+    },
+    "signups": [],
+    "keystones": null,
+    "cancelled": false
+  },
+  {
+    "messageID": "1493235117177569336",
+    "boostInfo": {
+      "Dungeons": 1,
+      "KeyLevel": 10,
+      "Price": 390000,
+      "Note": "test",
+      "CutBooster": 63375,
+      "CutAdventure": 136500,
+      "CreatorID": "161949563987558402",
+      "ChannelID": "1462850575724052565",
+      "KeysRequired": 0
+    },
+    "signups": [],
+    "keystones": null,
+    "cancelled": true
+  },
+  {
+    "messageID": "1493235337290449027",
+    "boostInfo": {
+      "Dungeons": 1,
+      "KeyLevel": 10,
+      "Price": 390000,
+      "Note": "test",
+      "CutBooster": 63375,
+      "CutAdventure": 136500,
+      "CreatorID": "161949563987558402",
+      "ChannelID": "1462850575724052565",
+      "KeysRequired": 0
+    },
+    "signups": [
+      {
+        "User": {
+          "id": "161949563987558402",
+          "email": "",
+          "username": "teito.",
+          "avatar": "a23523f7e994a066d387d096958fb486",
+          "locale": "",
+          "discriminator": "0",
+          "token": "",
+          "verified": false,
+          "mfa_enabled": false,
+          "bot": false,
+          "public_flags": 64,
+          "premium_type": 0,
+          "system": false,
+          "flags": 64
+        },
+        "Role": "DpsR",
+        "Timestamp": "2026-04-13T15:04:10.9186001+02:00"
+      },
+      {
+        "User": {
+          "id": "161949563987558402",
+          "email": "",
+          "username": "teito.",
+          "avatar": "a23523f7e994a066d387d096958fb486",
+          "locale": "",
+          "discriminator": "0",
+          "token": "",
+          "verified": false,
+          "mfa_enabled": false,
+          "bot": false,
+          "public_flags": 64,
+          "premium_type": 0,
+          "system": false,
+          "flags": 64
+        },
+        "Role": "HealR",
+        "Timestamp": "2026-04-13T15:04:11.2918317+02:00"
+      },
+      {
+        "User": {
+          "id": "161949563987558402",
+          "email": "",
+          "username": "teito.",
+          "avatar": "a23523f7e994a066d387d096958fb486",
+          "locale": "",
+          "discriminator": "0",
+          "token": "",
+          "verified": false,
+          "mfa_enabled": false,
+          "bot": false,
+          "public_flags": 64,
+          "premium_type": 0,
+          "system": false,
+          "flags": 64
+        },
+        "Role": "TankR",
+        "Timestamp": "2026-04-13T15:04:12.7843203+02:00"
+      }
+    ],
+    "keystones": null,
+    "cancelled": true
+  },
+  {
+    "messageID": "1493236090260295792",
+    "boostInfo": {
+      "Dungeons": 1,
+      "KeyLevel": 10,
+      "Price": 390000,
+      "Note": "test",
+      "CutBooster": 63375,
+      "CutAdventure": 136500,
+      "CreatorID": "161949563987558402",
+      "ChannelID": "1462850575724052565",
+      "KeysRequired": 0
+    },
+    "signups": [
+      {
+        "User": {
+          "id": "161949563987558402",
+          "email": "",
+          "username": "teito.",
+          "avatar": "a23523f7e994a066d387d096958fb486",
+          "locale": "",
+          "discriminator": "0",
+          "token": "",
+          "verified": false,
+          "mfa_enabled": false,
+          "bot": false,
+          "public_flags": 64,
+          "premium_type": 0,
+          "system": false,
+          "flags": 64
+        },
+        "Role": "TankR",
+        "Timestamp": "2026-04-13T15:07:10.1508562+02:00"
+      },
+      {
+        "User": {
+          "id": "161949563987558402",
+          "email": "",
+          "username": "teito.",
+          "avatar": "a23523f7e994a066d387d096958fb486",
+          "locale": "",
+          "discriminator": "0",
+          "token": "",
+          "verified": false,
+          "mfa_enabled": false,
+          "bot": false,
+          "public_flags": 64,
+          "premium_type": 0,
+          "system": false,
+          "flags": 64
+        },
+        "Role": "DpsR",
+        "Timestamp": "2026-04-13T15:07:10.5589044+02:00"
+      }
+    ],
+    "keystones": null,
+    "cancelled": true
+  }
+]

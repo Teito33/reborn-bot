@@ -1,8 +1,10 @@
 package handlers
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
+	"os"
 	"strconv"
 	"strings"
 	"sync"
@@ -50,7 +52,83 @@ type SignupSession struct {
 var (
 	signupSessions = make(map[string]*SignupSession)
 	sessionMu      sync.Mutex
+	lastBoostID    string  // Track the last boost message ID
+	lastBoostMu    sync.Mutex
+	dataFile       = "boosts_data.json"
 )
+
+// PersistedSession represents a boost session saved to disk
+type PersistedSession struct {
+	MessageID string         `json:"messageID"`
+	BoostInfo BoostInfo      `json:"boostInfo"`
+	Signups   []SignupEntry  `json:"signups"`
+	Keystones []KeystoneEntry `json:"keystones"`
+	Cancelled bool           `json:"cancelled"`
+}
+
+// LoadSessions loads all saved sessions from disk
+func LoadSessions() error {
+	data, err := os.ReadFile(dataFile)
+	if err != nil {
+		if os.IsNotExist(err) {
+			log.Println("No saved sessions found, starting fresh")
+			return nil
+		}
+		return err
+	}
+
+	var persisted []PersistedSession
+	if err := json.Unmarshal(data, &persisted); err != nil {
+		return err
+	}
+
+	sessionMu.Lock()
+	defer sessionMu.Unlock()
+
+	for _, p := range persisted {
+		session := &SignupSession{
+			MessageID: p.MessageID,
+			BoostInfo: p.BoostInfo,
+			Signups:   p.Signups,
+			Keystones: p.Keystones,
+			Cancelled: p.Cancelled,
+		}
+		signupSessions[p.MessageID] = session
+		
+		// Update lastBoostID if this is more recent
+		if lastBoostID == "" {
+			lastBoostID = p.MessageID
+		}
+	}
+
+	log.Printf("Loaded %d sessions from disk", len(persisted))
+	return nil
+}
+
+// SaveSessions saves all sessions to disk
+func SaveSessions() error {
+	sessionMu.Lock()
+	defer sessionMu.Unlock()
+
+	var persisted []PersistedSession
+	for _, session := range signupSessions {
+		p := PersistedSession{
+			MessageID: session.MessageID,
+			BoostInfo: session.BoostInfo,
+			Signups:   session.Signups,
+			Keystones: session.Keystones,
+			Cancelled: session.Cancelled,
+		}
+		persisted = append(persisted, p)
+	}
+
+	data, err := json.MarshalIndent(persisted, "", "  ")
+	if err != nil {
+		return err
+	}
+
+	return os.WriteFile(dataFile, data, 0644)
+}
 
 func getOrCreateSession(messageID string) *SignupSession {
 	sessionMu.Lock()
@@ -224,6 +302,54 @@ func HandleMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
+	// Command: !list - Show signup order for last boost
+	if strings.HasPrefix(m.Content, "!list") {
+		// Check if user has Advertiser or Management role
+		member, err := s.GuildMember(m.GuildID, m.Author.ID)
+		if err != nil {
+			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("<@%s> Erreur: impossible de vérifier tes rôles", m.Author.ID))
+			return
+		}
+
+		hasPermission := false
+		for _, roleID := range member.Roles {
+			if roleID == "1026892251735015515" || roleID == "1026936430859129013" {
+				hasPermission = true
+				break
+			}
+		}
+
+		if !hasPermission {
+			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("<@%s> Seuls les Advertisers et Managers peuvent utiliser cette commande.", m.Author.ID))
+			return
+		}
+
+		// Get the last boost session
+		lastBoostMu.Lock()
+		boostID := lastBoostID
+		lastBoostMu.Unlock()
+
+		if boostID == "" {
+			s.ChannelMessageSend(m.ChannelID, "❌ Aucun boost trouvé. Créez-en un avec `!boost`")
+			return
+		}
+
+		sessionMu.Lock()
+		session, exists := signupSessions[boostID]
+		sessionMu.Unlock()
+
+		if !exists {
+			s.ChannelMessageSend(m.ChannelID, "❌ La session du dernier boost n'existe plus.")
+			return
+		}
+
+		session.mu.Lock()
+		defer session.mu.Unlock()
+
+		displayTagList(s, m.ChannelID, session)
+		return
+	}
+
 	// Command: !boost - Starts a new signup session
 	if strings.HasPrefix(m.Content, "!boost") {
 		// Check if user has Management or Advertiser role
@@ -318,6 +444,11 @@ func HandleMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		boostInfo.ChannelID = m.ChannelID
 		session.BoostInfo = boostInfo
 
+		// Save as last boost
+		lastBoostMu.Lock()
+		lastBoostID = msg.ID
+		lastBoostMu.Unlock()
+
 		// Add reactions to the message
 		s.MessageReactionAdd(m.ChannelID, msg.ID, "TankR:1031701109540147211")
 		s.MessageReactionAdd(m.ChannelID, msg.ID, "HealR:1031701243342630992")
@@ -328,6 +459,9 @@ func HandleMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		if boostInfo.KeysRequired > 0 {
 			s.MessageReactionAdd(m.ChannelID, msg.ID, "KeystoneR:1031313236324257823")
 		}
+
+		// Save sessions to disk
+		SaveSessions()
 	}
 }
 
@@ -410,6 +544,11 @@ func HandleReactionAdd(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 			sessionMu.Lock()
 			delete(signupSessions, r.MessageID)
 			sessionMu.Unlock()
+			// Save sessions to disk
+			SaveSessions()
+		} else {
+			// Save sessions to disk even if not complete
+			SaveSessions()
 		}
 		return
 	}
@@ -482,6 +621,8 @@ func HandleReactionAdd(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 				log.Printf("error sending notification message: %v", notifErr)
 			}
 			log.Println("Notification sent successfully")
+		// Save sessions to disk
+		SaveSessions()
 		}
 
 		log.Println("Cancel operation completed successfully")
@@ -530,6 +671,11 @@ func HandleReactionAdd(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 		sessionMu.Lock()
 		delete(signupSessions, r.MessageID)
 		sessionMu.Unlock()
+		// Save sessions to disk
+		SaveSessions()
+	} else {
+		// Save sessions to disk even if not complete
+		SaveSessions()
 	}
 }
 
@@ -601,5 +747,33 @@ func displaySelectedPlayers(s *discordgo.Session, channelID string, tank *discor
 	_, err := s.ChannelMessageSend(channelID, message)
 	if err != nil {
 		log.Printf("error sending selected players message: %v", err)
+	}
+}
+
+func displayTagList(s *discordgo.Session, channelID string, session *SignupSession) {
+	message := "**📋 Signup Order - Tag List**\n\n"
+
+	if len(session.Signups) == 0 {
+		message += "Aucun signup pour ce boost."
+	} else {
+		// Display all signups with timestamps (including duplicates)
+		counter := 1
+		for _, signup := range session.Signups {
+			timeStr := signup.Timestamp.Format("15:04:05")
+			message += fmt.Sprintf("%d. <@%s> - **%s** (%s)\n", counter, signup.User.ID, signup.Role, timeStr)
+			counter++
+		}
+	}
+
+	if len(session.Keystones) > 0 {
+		message += "\n**🔑 Keystones:**\n"
+		for i, ks := range session.Keystones {
+			message += fmt.Sprintf("%d. <@%s>\n", i+1, ks.UserID)
+		}
+	}
+
+	_, err := s.ChannelMessageSend(channelID, message)
+	if err != nil {
+		log.Printf("error sending tag list message: %v", err)
 	}
 }

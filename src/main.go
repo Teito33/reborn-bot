@@ -39,6 +39,11 @@ func main() {
 		log.Fatalf("error opening connection: %v", err)
 	}
 
+	// Load previous sessions from disk
+	if err := handlers.LoadSessions(); err != nil {
+		log.Fatalf("error loading sessions: %v", err)
+	}
+
 	log.Println("Bot is now running. Press CTRL+C to exit.")
 
 	// Wait for interrupt signal
