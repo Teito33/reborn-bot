@@ -28,6 +28,13 @@ type BoostInfo struct {
 	CutAdventure float64
 	CreatorID    string
 	ChannelID    string
+	KeysRequired int
+}
+
+// KeystoneEntry represents a user's keystones
+type KeystoneEntry struct {
+	UserID string
+	Count  int
 }
 
 // SignupSession tracks users who reacted for a specific message
@@ -35,6 +42,7 @@ type SignupSession struct {
 	MessageID string
 	BoostInfo BoostInfo
 	Signups   []SignupEntry
+	Keystones []KeystoneEntry
 	Cancelled bool
 	mu        sync.Mutex
 }
@@ -61,13 +69,14 @@ func getOrCreateSession(messageID string) *SignupSession {
 }
 
 // parseBoostCommand parses the !boost command
-// Format: !boost 2x12 140 "note"
+// Format: !boost 2x12 140 k2 "note"
+// k2 = 2 keystones required (optional)
 func parseBoostCommand(content string) (BoostInfo, error) {
-	info := BoostInfo{}
+	info := BoostInfo{KeysRequired: 0}
 
 	parts := strings.Fields(content)
 	if len(parts) < 3 {
-		return info, fmt.Errorf("usage: !boost <dungeons>x<level> <price> [note]")
+		return info, fmt.Errorf("usage: !boost <dungeons>x<level> <price> [k<number>] [note]")
 	}
 
 	// Parse dungeons x level (e.g., 2x12)
@@ -94,17 +103,33 @@ func parseBoostCommand(content string) (BoostInfo, error) {
 	// Price is in thousands (k), so multiply by 1000
 	price = price * 1000
 
-	// Parse optional note (everything after price, trimming quotes)
+	// Parse optional keystones and note
 	note := ""
-	if len(parts) > 3 {
-		note = strings.Join(parts[3:], " ")
+	keysRequired := 0
+
+	for i := 3; i < len(parts); i++ {
+		part := parts[i]
+
+		// Check if this is a keystones requirement (e.g., k2, k3)
+		if strings.HasPrefix(part, "k") && len(part) > 1 {
+			keys, err := strconv.Atoi(part[1:])
+			if err == nil && keys > 0 {
+				keysRequired = keys
+				continue
+			}
+		}
+
+		// Everything else is the note
+		note = strings.Join(parts[i:], " ")
 		note = strings.Trim(note, "\"")
+		break
 	}
 
 	info.Dungeons = dungeons
 	info.KeyLevel = keyLevel
 	info.Price = price
 	info.Note = note
+	info.KeysRequired = keysRequired
 	info.CutBooster = price * 0.1625
 	info.CutAdventure = price * 0.35
 
@@ -112,16 +137,18 @@ func parseBoostCommand(content string) (BoostInfo, error) {
 }
 
 // selectBestGroup selects 1 tank, 1 healer, 2 dps from signups in order (FIFO)
+// Prioritizes users who have clicket on keystoneR emoji
 // avoiding duplicates (same person can't appear twice)
-func selectBestGroup(signups []SignupEntry) (tank *discordgo.User, healer *discordgo.User, dps []*discordgo.User) {
+func selectBestGroup(signups []SignupEntry, keystoneUsers map[string]bool) (tank *discordgo.User, healer *discordgo.User, dps []*discordgo.User) {
 	dps = make([]*discordgo.User, 0)
 	selectedUsers := make(map[string]bool)
 
+	// First pass: prioritize keystoneUsers
 	for _, signup := range signups {
 		userID := signup.User.ID
 
-		// Skip if this user is already selected
-		if selectedUsers[userID] {
+		// Skip if no keystone or already selected
+		if !keystoneUsers[userID] || selectedUsers[userID] {
 			continue
 		}
 
@@ -145,7 +172,40 @@ func selectBestGroup(signups []SignupEntry) (tank *discordgo.User, healer *disco
 
 		// Check if we have all roles filled
 		if tank != nil && healer != nil && len(dps) == 2 {
-			break
+			return
+		}
+	}
+
+	// Second pass: fill remaining slots with non-keystone users
+	for _, signup := range signups {
+		userID := signup.User.ID
+
+		// Skip if already selected or has keystone (already processed)
+		if selectedUsers[userID] || keystoneUsers[userID] {
+			continue
+		}
+
+		switch signup.Role {
+		case "TankR":
+			if tank == nil {
+				tank = signup.User
+				selectedUsers[userID] = true
+			}
+		case "HealR":
+			if healer == nil {
+				healer = signup.User
+				selectedUsers[userID] = true
+			}
+		case "DpsR":
+			if len(dps) < 2 {
+				dps = append(dps, signup.User)
+				selectedUsers[userID] = true
+			}
+		}
+
+		// Check if we have all roles filled
+		if tank != nil && healer != nil && len(dps) == 2 {
+			return
 		}
 	}
 
@@ -222,6 +282,15 @@ func HandleMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			},
 		}
 
+		// Add keystones field if required
+		if boostInfo.KeysRequired > 0 {
+			embed.Fields = append(embed.Fields, &discordgo.MessageEmbedField{
+				Name:   "Keystones needed:",
+				Value:  fmt.Sprintf("🔑 %d", boostInfo.KeysRequired),
+				Inline: true,
+			})
+		}
+
 		if boostInfo.Note != "" {
 			embed.Fields = append(embed.Fields, &discordgo.MessageEmbedField{
 				Name:   "Note:",
@@ -254,6 +323,11 @@ func HandleMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		s.MessageReactionAdd(m.ChannelID, msg.ID, "HealR:1031701243342630992")
 		s.MessageReactionAdd(m.ChannelID, msg.ID, "DpsR:1031701306475290675")
 		s.MessageReactionAdd(m.ChannelID, msg.ID, "crossR:1461783456651415770") // Cancel button
+
+		// Add Keystone reaction if keystones are required
+		if boostInfo.KeysRequired > 0 {
+			s.MessageReactionAdd(m.ChannelID, msg.ID, "KeystoneR:1031313236324257823")
+		}
 	}
 }
 
@@ -290,6 +364,55 @@ func HandleReactionAdd(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 	}
 
 	log.Printf("User %s reacted with emoji Name=%s ID=%s", user.Username, r.Emoji.Name, r.Emoji.ID)
+
+	// Check if keystone emoji (by Name or ID)
+	if r.Emoji.Name == "KeystoneR" || r.Emoji.ID == "1031313236324257823" {
+		// Check if keystones are required for this boost
+		if session.BoostInfo.KeysRequired <= 0 {
+			return
+		}
+
+		// Add or update keystone entry
+		found := false
+		for i, ks := range session.Keystones {
+			if ks.UserID == r.UserID {
+				session.Keystones[i].Count++
+				found = true
+				break
+			}
+		}
+		if !found {
+			session.Keystones = append(session.Keystones, KeystoneEntry{
+				UserID: r.UserID,
+				Count:  1,
+			})
+		}
+
+		log.Printf("Keystone added for user %s. Total keystones: %d (Required: %d)", user.Username, len(session.Keystones), session.BoostInfo.KeysRequired)
+
+		// Check if we now have enough keystones to launch the boost
+		keystoneUsers := make(map[string]bool)
+		for _, ks := range session.Keystones {
+			keystoneUsers[ks.UserID] = true
+		}
+
+		tank, healer, dps := selectBestGroup(session.Signups, keystoneUsers)
+		hasAllRoles := tank != nil && healer != nil && len(dps) == 2
+		hasEnoughKeystones := session.BoostInfo.KeysRequired <= 0 || len(session.Keystones) >= session.BoostInfo.KeysRequired
+
+		log.Printf("After keystone - AllRoles: %v, EnoughKeystones: %v (Required: %d, Have: %d)",
+			hasAllRoles, hasEnoughKeystones, session.BoostInfo.KeysRequired, len(session.Keystones))
+
+		if hasAllRoles && hasEnoughKeystones {
+			log.Println("Group complete! Displaying selected players.")
+			displaySelectedPlayers(s, r.ChannelID, tank, healer, dps, session.BoostInfo.Note, session.BoostInfo.KeysRequired, len(session.Keystones))
+			// Clean up the session
+			sessionMu.Lock()
+			delete(signupSessions, r.MessageID)
+			sessionMu.Unlock()
+		}
+		return
+	}
 
 	// Check if cancel emoji (by Name or ID)
 	if r.Emoji.Name == "❌" || r.Emoji.Name == "crossR" || r.Emoji.ID == "1461783456651415770" {
@@ -339,11 +462,15 @@ func HandleReactionAdd(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 		}
 		log.Println("Message edited successfully")
 
-		// Get all users who reacted
+		// Get all users who reacted (without duplicates)
 		log.Println("Building mentions list...")
+		mentionedUsers := make(map[string]bool)
 		var mentions []string
 		for _, signup := range session.Signups {
-			mentions = append(mentions, fmt.Sprintf("<@%s>", signup.User.ID))
+			if !mentionedUsers[signup.User.ID] {
+				mentions = append(mentions, fmt.Sprintf("<@%s>", signup.User.ID))
+				mentionedUsers[signup.User.ID] = true
+			}
 		}
 
 		// Send notification message
@@ -378,15 +505,27 @@ func HandleReactionAdd(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 		log.Printf("  [%d] %s - %s", i, signup.User.Username, signup.Role)
 	}
 
-	// Try to select a full group
-	tank, healer, dps := selectBestGroup(session.Signups)
+	// Create a map of keystoneUsers for priority selection
+	keystoneUsers := make(map[string]bool)
+	for _, ks := range session.Keystones {
+		keystoneUsers[ks.UserID] = true
+	}
+
+	// Try to select a full group (prioritizing keystoneUsers)
+	tank, healer, dps := selectBestGroup(session.Signups, keystoneUsers)
 
 	log.Printf("Selected - Tank: %v, Healer: %v, DPS: %d", tank != nil, healer != nil, len(dps))
 
-	// Check if we have all roles filled (1 tank, 1 healer, 2 DPS)
-	if tank != nil && healer != nil && len(dps) == 2 {
+	// Check if we have all roles filled (1 tank, 1 healer, 2 DPS) and keystones if required
+	hasAllRoles := tank != nil && healer != nil && len(dps) == 2
+	hasEnoughKeystones := session.BoostInfo.KeysRequired <= 0 || len(session.Keystones) >= session.BoostInfo.KeysRequired
+
+	log.Printf("Boost check - AllRoles: %v, EnoughKeystones: %v (Required: %d, Have: %d)",
+		hasAllRoles, hasEnoughKeystones, session.BoostInfo.KeysRequired, len(session.Keystones))
+
+	if hasAllRoles && hasEnoughKeystones {
 		log.Println("Group complete! Displaying selected players.")
-		displaySelectedPlayers(s, r.ChannelID, tank, healer, dps, session.BoostInfo.Note)
+		displaySelectedPlayers(s, r.ChannelID, tank, healer, dps, session.BoostInfo.Note, session.BoostInfo.KeysRequired, len(session.Keystones))
 		// Clean up the session
 		sessionMu.Lock()
 		delete(signupSessions, r.MessageID)
@@ -408,6 +547,18 @@ func HandleReactionRemove(s *discordgo.Session, r *discordgo.MessageReactionRemo
 	session.mu.Lock()
 	defer session.mu.Unlock()
 
+	// Check if this is a keystone removal
+	if r.Emoji.Name == "KeystoneR" || r.Emoji.ID == "1031313236324257823" {
+		// Remove the keystone entry
+		for i, ks := range session.Keystones {
+			if ks.UserID == r.UserID {
+				session.Keystones = append(session.Keystones[:i], session.Keystones[i+1:]...)
+				break
+			}
+		}
+		return
+	}
+
 	// Remove the signup entry
 	for i, signup := range session.Signups {
 		if signup.User.ID == r.UserID && signup.Role == r.Emoji.Name {
@@ -417,7 +568,7 @@ func HandleReactionRemove(s *discordgo.Session, r *discordgo.MessageReactionRemo
 	}
 }
 
-func displaySelectedPlayers(s *discordgo.Session, channelID string, tank *discordgo.User, healer *discordgo.User, dps []*discordgo.User, note string) {
+func displaySelectedPlayers(s *discordgo.Session, channelID string, tank *discordgo.User, healer *discordgo.User, dps []*discordgo.User, note string, keysRequired int, keystoneCount int) {
 	message := "**Boost Group Selected!**\n\n"
 
 	if tank != nil {
@@ -437,6 +588,10 @@ func displaySelectedPlayers(s *discordgo.Session, channelID string, tank *discor
 			message += fmt.Sprintf("<@%s>", dpsPlayer.ID)
 		}
 		message += "\n"
+	}
+
+	if keysRequired > 0 {
+		message += fmt.Sprintf("\n🔑 **Keystones:** %d/%d\n", keystoneCount, keysRequired)
 	}
 
 	if note != "" {
