@@ -1,571 +1,5 @@
 [
   {
-    "messageID": "1495519889799254301",
-    "boostInfo": {
-      "Dungeons": 1,
-      "KeyLevel": 15,
-      "Price": 550000,
-      "Note": "Académie+15 Timée",
-      "CutBooster": 89375,
-      "CutAdventure": 192500,
-      "CreatorID": "186087363414327296",
-      "ChannelID": "1026930748269273150",
-      "KeysRequired": 1
-    },
-    "signups": [
-      {
-        "User": {
-          "id": "1392801528754077837",
-          "email": "",
-          "username": "alfancy_",
-          "avatar": "2c2068fad5a1a1874333e5584c891193",
-          "locale": "",
-          "discriminator": "0",
-          "token": "",
-          "verified": false,
-          "mfa_enabled": false,
-          "bot": false,
-          "public_flags": 0,
-          "premium_type": 0,
-          "system": false,
-          "flags": 0
-        },
-        "Role": "HealR",
-        "Timestamp": "2026-04-19T22:46:47.2452068+02:00"
-      },
-      {
-        "User": {
-          "id": "161949563987558402",
-          "email": "",
-          "username": "teito.",
-          "avatar": "a23523f7e994a066d387d096958fb486",
-          "locale": "",
-          "discriminator": "0",
-          "token": "",
-          "verified": false,
-          "mfa_enabled": false,
-          "bot": false,
-          "public_flags": 64,
-          "premium_type": 0,
-          "system": false,
-          "flags": 64
-        },
-        "Role": "DpsR",
-        "Timestamp": "2026-04-19T22:51:38.2226237+02:00"
-      },
-      {
-        "User": {
-          "id": "161949563987558402",
-          "email": "",
-          "username": "teito.",
-          "avatar": "a23523f7e994a066d387d096958fb486",
-          "locale": "",
-          "discriminator": "0",
-          "token": "",
-          "verified": false,
-          "mfa_enabled": false,
-          "bot": false,
-          "public_flags": 64,
-          "premium_type": 0,
-          "system": false,
-          "flags": 64
-        },
-        "Role": "TankR",
-        "Timestamp": "2026-04-19T22:53:11.4255139+02:00"
-      }
-    ],
-    "keystones": null,
-    "cancelled": true
-  },
-  {
-    "messageID": "1495734739968069662",
-    "boostInfo": {
-      "Dungeons": 1,
-      "KeyLevel": 15,
-      "Price": 550000,
-      "Note": "Académie+15 Timée",
-      "CutBooster": 89375,
-      "CutAdventure": 192500,
-      "CreatorID": "186087363414327296",
-      "ChannelID": "1026930748269273150",
-      "KeysRequired": 1
-    },
-    "signups": [
-      {
-        "User": {
-          "id": "182615217606230016",
-          "email": "",
-          "username": "yusuke_04",
-          "avatar": "d2c1d504e4ae553bd64ad5ed056e9017",
-          "locale": "",
-          "discriminator": "0",
-          "token": "",
-          "verified": false,
-          "mfa_enabled": false,
-          "bot": false,
-          "public_flags": 0,
-          "premium_type": 0,
-          "system": false,
-          "flags": 0
-        },
-        "Role": "DpsR",
-        "Timestamp": "2026-04-20T16:33:46.3897894+02:00"
-      }
-    ],
-    "keystones": null,
-    "cancelled": false
-  },
-  {
-    "messageID": "1496141559429595246",
-    "boostInfo": {
-      "Dungeons": 1,
-      "KeyLevel": 15,
-      "Price": 550000,
-      "Note": "Académie+15 Timée",
-      "CutBooster": 89375,
-      "CutAdventure": 192500,
-      "CreatorID": "186087363414327296",
-      "ChannelID": "1026930748269273150",
-      "KeysRequired": 1
-    },
-    "signups": [
-      {
-        "User": {
-          "id": "309013607138459658",
-          "email": "",
-          "username": "xarine",
-          "avatar": "50bdbcfee91dc9569ce0aeb792899776",
-          "locale": "",
-          "discriminator": "0",
-          "token": "",
-          "verified": false,
-          "mfa_enabled": false,
-          "bot": false,
-          "public_flags": 0,
-          "premium_type": 0,
-          "system": false,
-          "flags": 0
-        },
-        "Role": "DpsR",
-        "Timestamp": "2026-04-21T15:33:15.1631409+02:00"
-      },
-      {
-        "User": {
-          "id": "182615217606230016",
-          "email": "",
-          "username": "yusuke_04",
-          "avatar": "d2c1d504e4ae553bd64ad5ed056e9017",
-          "locale": "",
-          "discriminator": "0",
-          "token": "",
-          "verified": false,
-          "mfa_enabled": false,
-          "bot": false,
-          "public_flags": 0,
-          "premium_type": 0,
-          "system": false,
-          "flags": 0
-        },
-        "Role": "DpsR",
-        "Timestamp": "2026-04-21T15:45:27.355943+02:00"
-      }
-    ],
-    "keystones": null,
-    "cancelled": false
-  },
-  {
-    "messageID": "1493236234519318650",
-    "boostInfo": {
-      "Dungeons": 1,
-      "KeyLevel": 10,
-      "Price": 390000,
-      "Note": "test",
-      "CutBooster": 63375,
-      "CutAdventure": 136500,
-      "CreatorID": "161949563987558402",
-      "ChannelID": "1462850575724052565",
-      "KeysRequired": 0
-    },
-    "signups": [
-      {
-        "User": {
-          "id": "161949563987558402",
-          "email": "",
-          "username": "teito.",
-          "avatar": "a23523f7e994a066d387d096958fb486",
-          "locale": "",
-          "discriminator": "0",
-          "token": "",
-          "verified": false,
-          "mfa_enabled": false,
-          "bot": false,
-          "public_flags": 64,
-          "premium_type": 0,
-          "system": false,
-          "flags": 64
-        },
-        "Role": "TankR",
-        "Timestamp": "2026-04-13T15:07:44.0184349+02:00"
-      },
-      {
-        "User": {
-          "id": "161949563987558402",
-          "email": "",
-          "username": "teito.",
-          "avatar": "a23523f7e994a066d387d096958fb486",
-          "locale": "",
-          "discriminator": "0",
-          "token": "",
-          "verified": false,
-          "mfa_enabled": false,
-          "bot": false,
-          "public_flags": 64,
-          "premium_type": 0,
-          "system": false,
-          "flags": 64
-        },
-        "Role": "DpsR",
-        "Timestamp": "2026-04-13T15:07:45.2555253+02:00"
-      },
-      {
-        "User": {
-          "id": "213767844679254016",
-          "email": "",
-          "username": "naphylia",
-          "avatar": "2934b5a6b6e6c189e261b1e9824792e9",
-          "locale": "",
-          "discriminator": "0",
-          "token": "",
-          "verified": false,
-          "mfa_enabled": false,
-          "bot": false,
-          "public_flags": 0,
-          "premium_type": 0,
-          "system": false,
-          "flags": 0
-        },
-        "Role": "DpsR",
-        "Timestamp": "2026-04-13T15:07:51.8301312+02:00"
-      }
-    ],
-    "keystones": null,
-    "cancelled": true
-  },
-  {
-    "messageID": "1495461826467467476",
-    "boostInfo": {
-      "Dungeons": 4,
-      "KeyLevel": 10,
-      "Price": 800000,
-      "Note": "Flèche de Coursevent et Orée-du -Ciel en spécifique et 2 autre random",
-      "CutBooster": 130000,
-      "CutAdventure": 280000,
-      "CreatorID": "186087363414327296",
-      "ChannelID": "1026930748269273150",
-      "KeysRequired": 2
-    },
-    "signups": [
-      {
-        "User": {
-          "id": "505361105191960587",
-          "email": "",
-          "username": "liha0711",
-          "avatar": "f4d5fd151294dbba99095738486a4de4",
-          "locale": "",
-          "discriminator": "0",
-          "token": "",
-          "verified": false,
-          "mfa_enabled": false,
-          "bot": false,
-          "public_flags": 0,
-          "premium_type": 0,
-          "system": false,
-          "flags": 0
-        },
-        "Role": "HealR",
-        "Timestamp": "2026-04-19T18:31:45.037455+02:00"
-      }
-    ],
-    "keystones": null,
-    "cancelled": true
-  },
-  {
-    "messageID": "1496273400178413699",
-    "boostInfo": {
-      "Dungeons": 1,
-      "KeyLevel": 10,
-      "Price": 220000,
-      "Note": "Clé du client Timée ( AA )",
-      "CutBooster": 35750,
-      "CutAdventure": 77000,
-      "CreatorID": "186087363414327296",
-      "ChannelID": "1026930748269273150",
-      "KeysRequired": 0
-    },
-    "signups": [
-      {
-        "User": {
-          "id": "161949563987558402",
-          "email": "",
-          "username": "teito.",
-          "avatar": "a23523f7e994a066d387d096958fb486",
-          "locale": "",
-          "discriminator": "0",
-          "token": "",
-          "verified": false,
-          "mfa_enabled": false,
-          "bot": false,
-          "public_flags": 64,
-          "premium_type": 0,
-          "system": false,
-          "flags": 64
-        },
-        "Role": "TankR",
-        "Timestamp": "2026-04-22T00:16:29.0350486+02:00"
-      },
-      {
-        "User": {
-          "id": "160765951657115648",
-          "email": "",
-          "username": "melash",
-          "avatar": "0a352afc59a6864c6fadd3439a01dd96",
-          "locale": "",
-          "discriminator": "0",
-          "token": "",
-          "verified": false,
-          "mfa_enabled": false,
-          "bot": false,
-          "public_flags": 0,
-          "premium_type": 0,
-          "system": false,
-          "flags": 0
-        },
-        "Role": "DpsR",
-        "Timestamp": "2026-04-22T00:16:33.7202545+02:00"
-      }
-    ],
-    "keystones": null,
-    "cancelled": true
-  },
-  {
-    "messageID": "1496524971277815860",
-    "boostInfo": {
-      "Dungeons": 1,
-      "KeyLevel": 10,
-      "Price": 200000,
-      "Note": "Maisara M+10 timée",
-      "CutBooster": 32500,
-      "CutAdventure": 70000,
-      "CreatorID": "186087363414327296",
-      "ChannelID": "1026930748269273150",
-      "KeysRequired": 0
-    },
-    "signups": [
-      {
-        "User": {
-          "id": "309013607138459658",
-          "email": "",
-          "username": "xarine",
-          "avatar": "50bdbcfee91dc9569ce0aeb792899776",
-          "locale": "",
-          "discriminator": "0",
-          "token": "",
-          "verified": false,
-          "mfa_enabled": false,
-          "bot": false,
-          "public_flags": 0,
-          "premium_type": 0,
-          "system": false,
-          "flags": 0
-        },
-        "Role": "TankR",
-        "Timestamp": "2026-04-22T16:56:12.62654+02:00"
-      },
-      {
-        "User": {
-          "id": "309013607138459658",
-          "email": "",
-          "username": "xarine",
-          "avatar": "50bdbcfee91dc9569ce0aeb792899776",
-          "locale": "",
-          "discriminator": "0",
-          "token": "",
-          "verified": false,
-          "mfa_enabled": false,
-          "bot": false,
-          "public_flags": 0,
-          "premium_type": 0,
-          "system": false,
-          "flags": 0
-        },
-        "Role": "DpsR",
-        "Timestamp": "2026-04-22T16:56:13.3045849+02:00"
-      },
-      {
-        "User": {
-          "id": "161949563987558402",
-          "email": "",
-          "username": "teito.",
-          "avatar": "a23523f7e994a066d387d096958fb486",
-          "locale": "",
-          "discriminator": "0",
-          "token": "",
-          "verified": false,
-          "mfa_enabled": false,
-          "bot": false,
-          "public_flags": 64,
-          "premium_type": 0,
-          "system": false,
-          "flags": 64
-        },
-        "Role": "DpsR",
-        "Timestamp": "2026-04-22T16:56:19.4776399+02:00"
-      }
-    ],
-    "keystones": null,
-    "cancelled": true
-  },
-  {
-    "messageID": "1497669657119817818",
-    "boostInfo": {
-      "Dungeons": 1,
-      "KeyLevel": 10,
-      "Price": 180000,
-      "Note": "Random M+10 Timée sauf Triumirat et Maisara",
-      "CutBooster": 29250,
-      "CutAdventure": 62999.99999999999,
-      "CreatorID": "186087363414327296",
-      "ChannelID": "1026930748269273150",
-      "KeysRequired": 1
-    },
-    "signups": [
-      {
-        "User": {
-          "id": "226048998220365824",
-          "email": "",
-          "username": "gearsy_",
-          "avatar": "e6c57bac94c2475cf6830aa1d7537bba",
-          "locale": "",
-          "discriminator": "0",
-          "token": "",
-          "verified": false,
-          "mfa_enabled": false,
-          "bot": false,
-          "public_flags": 0,
-          "premium_type": 0,
-          "system": false,
-          "flags": 0
-        },
-        "Role": "DpsR",
-        "Timestamp": "2026-04-25T20:45:02.1416556+02:00"
-      },
-      {
-        "User": {
-          "id": "226048998220365824",
-          "email": "",
-          "username": "gearsy_",
-          "avatar": "e6c57bac94c2475cf6830aa1d7537bba",
-          "locale": "",
-          "discriminator": "0",
-          "token": "",
-          "verified": false,
-          "mfa_enabled": false,
-          "bot": false,
-          "public_flags": 0,
-          "premium_type": 0,
-          "system": false,
-          "flags": 0
-        },
-        "Role": "TankR",
-        "Timestamp": "2026-04-25T20:45:34.7597536+02:00"
-      },
-      {
-        "User": {
-          "id": "226048998220365824",
-          "email": "",
-          "username": "gearsy_",
-          "avatar": "e6c57bac94c2475cf6830aa1d7537bba",
-          "locale": "",
-          "discriminator": "0",
-          "token": "",
-          "verified": false,
-          "mfa_enabled": false,
-          "bot": false,
-          "public_flags": 0,
-          "premium_type": 0,
-          "system": false,
-          "flags": 0
-        },
-        "Role": "HealR",
-        "Timestamp": "2026-04-25T20:45:35.0367459+02:00"
-      },
-      {
-        "User": {
-          "id": "483677443954049034",
-          "email": "",
-          "username": "xx4040",
-          "avatar": "a_2b94530baf6001c212eb3a43d458c2a5",
-          "locale": "",
-          "discriminator": "0",
-          "token": "",
-          "verified": false,
-          "mfa_enabled": false,
-          "bot": false,
-          "public_flags": 64,
-          "premium_type": 0,
-          "system": false,
-          "flags": 64
-        },
-        "Role": "HealR",
-        "Timestamp": "2026-04-25T20:46:11.141657+02:00"
-      },
-      {
-        "User": {
-          "id": "483677443954049034",
-          "email": "",
-          "username": "xx4040",
-          "avatar": "a_2b94530baf6001c212eb3a43d458c2a5",
-          "locale": "",
-          "discriminator": "0",
-          "token": "",
-          "verified": false,
-          "mfa_enabled": false,
-          "bot": false,
-          "public_flags": 64,
-          "premium_type": 0,
-          "system": false,
-          "flags": 64
-        },
-        "Role": "DpsR",
-        "Timestamp": "2026-04-25T20:46:11.6747811+02:00"
-      }
-    ],
-    "keystones": [
-      {
-        "UserID": "226048998220365824",
-        "Count": 1
-      }
-    ],
-    "cancelled": false
-  },
-  {
-    "messageID": "1493235117177569336",
-    "boostInfo": {
-      "Dungeons": 1,
-      "KeyLevel": 10,
-      "Price": 390000,
-      "Note": "test",
-      "CutBooster": 63375,
-      "CutAdventure": 136500,
-      "CreatorID": "161949563987558402",
-      "ChannelID": "1462850575724052565",
-      "KeysRequired": 0
-    },
-    "signups": [],
-    "keystones": null,
-    "cancelled": true
-  },
-  {
     "messageID": "1493583916823478435",
     "boostInfo": {
       "Dungeons": 1,
@@ -1477,5 +911,588 @@
     ],
     "keystones": null,
     "cancelled": false
+  },
+  {
+    "messageID": "1495519889799254301",
+    "boostInfo": {
+      "Dungeons": 1,
+      "KeyLevel": 15,
+      "Price": 550000,
+      "Note": "Académie+15 Timée",
+      "CutBooster": 89375,
+      "CutAdventure": 192500,
+      "CreatorID": "186087363414327296",
+      "ChannelID": "1026930748269273150",
+      "KeysRequired": 1
+    },
+    "signups": [
+      {
+        "User": {
+          "id": "1392801528754077837",
+          "email": "",
+          "username": "alfancy_",
+          "avatar": "2c2068fad5a1a1874333e5584c891193",
+          "locale": "",
+          "discriminator": "0",
+          "token": "",
+          "verified": false,
+          "mfa_enabled": false,
+          "bot": false,
+          "public_flags": 0,
+          "premium_type": 0,
+          "system": false,
+          "flags": 0
+        },
+        "Role": "HealR",
+        "Timestamp": "2026-04-19T22:46:47.2452068+02:00"
+      },
+      {
+        "User": {
+          "id": "161949563987558402",
+          "email": "",
+          "username": "teito.",
+          "avatar": "a23523f7e994a066d387d096958fb486",
+          "locale": "",
+          "discriminator": "0",
+          "token": "",
+          "verified": false,
+          "mfa_enabled": false,
+          "bot": false,
+          "public_flags": 64,
+          "premium_type": 0,
+          "system": false,
+          "flags": 64
+        },
+        "Role": "DpsR",
+        "Timestamp": "2026-04-19T22:51:38.2226237+02:00"
+      },
+      {
+        "User": {
+          "id": "161949563987558402",
+          "email": "",
+          "username": "teito.",
+          "avatar": "a23523f7e994a066d387d096958fb486",
+          "locale": "",
+          "discriminator": "0",
+          "token": "",
+          "verified": false,
+          "mfa_enabled": false,
+          "bot": false,
+          "public_flags": 64,
+          "premium_type": 0,
+          "system": false,
+          "flags": 64
+        },
+        "Role": "TankR",
+        "Timestamp": "2026-04-19T22:53:11.4255139+02:00"
+      }
+    ],
+    "keystones": null,
+    "cancelled": true
+  },
+  {
+    "messageID": "1495734739968069662",
+    "boostInfo": {
+      "Dungeons": 1,
+      "KeyLevel": 15,
+      "Price": 550000,
+      "Note": "Académie+15 Timée",
+      "CutBooster": 89375,
+      "CutAdventure": 192500,
+      "CreatorID": "186087363414327296",
+      "ChannelID": "1026930748269273150",
+      "KeysRequired": 1
+    },
+    "signups": [
+      {
+        "User": {
+          "id": "182615217606230016",
+          "email": "",
+          "username": "yusuke_04",
+          "avatar": "d2c1d504e4ae553bd64ad5ed056e9017",
+          "locale": "",
+          "discriminator": "0",
+          "token": "",
+          "verified": false,
+          "mfa_enabled": false,
+          "bot": false,
+          "public_flags": 0,
+          "premium_type": 0,
+          "system": false,
+          "flags": 0
+        },
+        "Role": "DpsR",
+        "Timestamp": "2026-04-20T16:33:46.3897894+02:00"
+      }
+    ],
+    "keystones": null,
+    "cancelled": false
+  },
+  {
+    "messageID": "1496141559429595246",
+    "boostInfo": {
+      "Dungeons": 1,
+      "KeyLevel": 15,
+      "Price": 550000,
+      "Note": "Académie+15 Timée",
+      "CutBooster": 89375,
+      "CutAdventure": 192500,
+      "CreatorID": "186087363414327296",
+      "ChannelID": "1026930748269273150",
+      "KeysRequired": 1
+    },
+    "signups": [
+      {
+        "User": {
+          "id": "309013607138459658",
+          "email": "",
+          "username": "xarine",
+          "avatar": "50bdbcfee91dc9569ce0aeb792899776",
+          "locale": "",
+          "discriminator": "0",
+          "token": "",
+          "verified": false,
+          "mfa_enabled": false,
+          "bot": false,
+          "public_flags": 0,
+          "premium_type": 0,
+          "system": false,
+          "flags": 0
+        },
+        "Role": "DpsR",
+        "Timestamp": "2026-04-21T15:33:15.1631409+02:00"
+      },
+      {
+        "User": {
+          "id": "182615217606230016",
+          "email": "",
+          "username": "yusuke_04",
+          "avatar": "d2c1d504e4ae553bd64ad5ed056e9017",
+          "locale": "",
+          "discriminator": "0",
+          "token": "",
+          "verified": false,
+          "mfa_enabled": false,
+          "bot": false,
+          "public_flags": 0,
+          "premium_type": 0,
+          "system": false,
+          "flags": 0
+        },
+        "Role": "DpsR",
+        "Timestamp": "2026-04-21T15:45:27.355943+02:00"
+      }
+    ],
+    "keystones": null,
+    "cancelled": false
+  },
+  {
+    "messageID": "1493236234519318650",
+    "boostInfo": {
+      "Dungeons": 1,
+      "KeyLevel": 10,
+      "Price": 390000,
+      "Note": "test",
+      "CutBooster": 63375,
+      "CutAdventure": 136500,
+      "CreatorID": "161949563987558402",
+      "ChannelID": "1462850575724052565",
+      "KeysRequired": 0
+    },
+    "signups": [
+      {
+        "User": {
+          "id": "161949563987558402",
+          "email": "",
+          "username": "teito.",
+          "avatar": "a23523f7e994a066d387d096958fb486",
+          "locale": "",
+          "discriminator": "0",
+          "token": "",
+          "verified": false,
+          "mfa_enabled": false,
+          "bot": false,
+          "public_flags": 64,
+          "premium_type": 0,
+          "system": false,
+          "flags": 64
+        },
+        "Role": "TankR",
+        "Timestamp": "2026-04-13T15:07:44.0184349+02:00"
+      },
+      {
+        "User": {
+          "id": "161949563987558402",
+          "email": "",
+          "username": "teito.",
+          "avatar": "a23523f7e994a066d387d096958fb486",
+          "locale": "",
+          "discriminator": "0",
+          "token": "",
+          "verified": false,
+          "mfa_enabled": false,
+          "bot": false,
+          "public_flags": 64,
+          "premium_type": 0,
+          "system": false,
+          "flags": 64
+        },
+        "Role": "DpsR",
+        "Timestamp": "2026-04-13T15:07:45.2555253+02:00"
+      },
+      {
+        "User": {
+          "id": "213767844679254016",
+          "email": "",
+          "username": "naphylia",
+          "avatar": "2934b5a6b6e6c189e261b1e9824792e9",
+          "locale": "",
+          "discriminator": "0",
+          "token": "",
+          "verified": false,
+          "mfa_enabled": false,
+          "bot": false,
+          "public_flags": 0,
+          "premium_type": 0,
+          "system": false,
+          "flags": 0
+        },
+        "Role": "DpsR",
+        "Timestamp": "2026-04-13T15:07:51.8301312+02:00"
+      }
+    ],
+    "keystones": null,
+    "cancelled": true
+  },
+  {
+    "messageID": "1495461826467467476",
+    "boostInfo": {
+      "Dungeons": 4,
+      "KeyLevel": 10,
+      "Price": 800000,
+      "Note": "Flèche de Coursevent et Orée-du -Ciel en spécifique et 2 autre random",
+      "CutBooster": 130000,
+      "CutAdventure": 280000,
+      "CreatorID": "186087363414327296",
+      "ChannelID": "1026930748269273150",
+      "KeysRequired": 2
+    },
+    "signups": [
+      {
+        "User": {
+          "id": "505361105191960587",
+          "email": "",
+          "username": "liha0711",
+          "avatar": "f4d5fd151294dbba99095738486a4de4",
+          "locale": "",
+          "discriminator": "0",
+          "token": "",
+          "verified": false,
+          "mfa_enabled": false,
+          "bot": false,
+          "public_flags": 0,
+          "premium_type": 0,
+          "system": false,
+          "flags": 0
+        },
+        "Role": "HealR",
+        "Timestamp": "2026-04-19T18:31:45.037455+02:00"
+      }
+    ],
+    "keystones": null,
+    "cancelled": true
+  },
+  {
+    "messageID": "1496273400178413699",
+    "boostInfo": {
+      "Dungeons": 1,
+      "KeyLevel": 10,
+      "Price": 220000,
+      "Note": "Clé du client Timée ( AA )",
+      "CutBooster": 35750,
+      "CutAdventure": 77000,
+      "CreatorID": "186087363414327296",
+      "ChannelID": "1026930748269273150",
+      "KeysRequired": 0
+    },
+    "signups": [
+      {
+        "User": {
+          "id": "161949563987558402",
+          "email": "",
+          "username": "teito.",
+          "avatar": "a23523f7e994a066d387d096958fb486",
+          "locale": "",
+          "discriminator": "0",
+          "token": "",
+          "verified": false,
+          "mfa_enabled": false,
+          "bot": false,
+          "public_flags": 64,
+          "premium_type": 0,
+          "system": false,
+          "flags": 64
+        },
+        "Role": "TankR",
+        "Timestamp": "2026-04-22T00:16:29.0350486+02:00"
+      },
+      {
+        "User": {
+          "id": "160765951657115648",
+          "email": "",
+          "username": "melash",
+          "avatar": "0a352afc59a6864c6fadd3439a01dd96",
+          "locale": "",
+          "discriminator": "0",
+          "token": "",
+          "verified": false,
+          "mfa_enabled": false,
+          "bot": false,
+          "public_flags": 0,
+          "premium_type": 0,
+          "system": false,
+          "flags": 0
+        },
+        "Role": "DpsR",
+        "Timestamp": "2026-04-22T00:16:33.7202545+02:00"
+      }
+    ],
+    "keystones": null,
+    "cancelled": true
+  },
+  {
+    "messageID": "1496524971277815860",
+    "boostInfo": {
+      "Dungeons": 1,
+      "KeyLevel": 10,
+      "Price": 200000,
+      "Note": "Maisara M+10 timée",
+      "CutBooster": 32500,
+      "CutAdventure": 70000,
+      "CreatorID": "186087363414327296",
+      "ChannelID": "1026930748269273150",
+      "KeysRequired": 0
+    },
+    "signups": [
+      {
+        "User": {
+          "id": "309013607138459658",
+          "email": "",
+          "username": "xarine",
+          "avatar": "50bdbcfee91dc9569ce0aeb792899776",
+          "locale": "",
+          "discriminator": "0",
+          "token": "",
+          "verified": false,
+          "mfa_enabled": false,
+          "bot": false,
+          "public_flags": 0,
+          "premium_type": 0,
+          "system": false,
+          "flags": 0
+        },
+        "Role": "TankR",
+        "Timestamp": "2026-04-22T16:56:12.62654+02:00"
+      },
+      {
+        "User": {
+          "id": "309013607138459658",
+          "email": "",
+          "username": "xarine",
+          "avatar": "50bdbcfee91dc9569ce0aeb792899776",
+          "locale": "",
+          "discriminator": "0",
+          "token": "",
+          "verified": false,
+          "mfa_enabled": false,
+          "bot": false,
+          "public_flags": 0,
+          "premium_type": 0,
+          "system": false,
+          "flags": 0
+        },
+        "Role": "DpsR",
+        "Timestamp": "2026-04-22T16:56:13.3045849+02:00"
+      },
+      {
+        "User": {
+          "id": "161949563987558402",
+          "email": "",
+          "username": "teito.",
+          "avatar": "a23523f7e994a066d387d096958fb486",
+          "locale": "",
+          "discriminator": "0",
+          "token": "",
+          "verified": false,
+          "mfa_enabled": false,
+          "bot": false,
+          "public_flags": 64,
+          "premium_type": 0,
+          "system": false,
+          "flags": 64
+        },
+        "Role": "DpsR",
+        "Timestamp": "2026-04-22T16:56:19.4776399+02:00"
+      }
+    ],
+    "keystones": null,
+    "cancelled": true
+  },
+  {
+    "messageID": "1497669657119817818",
+    "boostInfo": {
+      "Dungeons": 1,
+      "KeyLevel": 10,
+      "Price": 180000,
+      "Note": "Random M+10 Timée sauf Triumirat et Maisara",
+      "CutBooster": 29250,
+      "CutAdventure": 62999.99999999999,
+      "CreatorID": "186087363414327296",
+      "ChannelID": "1026930748269273150",
+      "KeysRequired": 1
+    },
+    "signups": [
+      {
+        "User": {
+          "id": "226048998220365824",
+          "email": "",
+          "username": "gearsy_",
+          "avatar": "e6c57bac94c2475cf6830aa1d7537bba",
+          "locale": "",
+          "discriminator": "0",
+          "token": "",
+          "verified": false,
+          "mfa_enabled": false,
+          "bot": false,
+          "public_flags": 0,
+          "premium_type": 0,
+          "system": false,
+          "flags": 0
+        },
+        "Role": "DpsR",
+        "Timestamp": "2026-04-25T20:45:02.1416556+02:00"
+      },
+      {
+        "User": {
+          "id": "226048998220365824",
+          "email": "",
+          "username": "gearsy_",
+          "avatar": "e6c57bac94c2475cf6830aa1d7537bba",
+          "locale": "",
+          "discriminator": "0",
+          "token": "",
+          "verified": false,
+          "mfa_enabled": false,
+          "bot": false,
+          "public_flags": 0,
+          "premium_type": 0,
+          "system": false,
+          "flags": 0
+        },
+        "Role": "TankR",
+        "Timestamp": "2026-04-25T20:45:34.7597536+02:00"
+      },
+      {
+        "User": {
+          "id": "226048998220365824",
+          "email": "",
+          "username": "gearsy_",
+          "avatar": "e6c57bac94c2475cf6830aa1d7537bba",
+          "locale": "",
+          "discriminator": "0",
+          "token": "",
+          "verified": false,
+          "mfa_enabled": false,
+          "bot": false,
+          "public_flags": 0,
+          "premium_type": 0,
+          "system": false,
+          "flags": 0
+        },
+        "Role": "HealR",
+        "Timestamp": "2026-04-25T20:45:35.0367459+02:00"
+      },
+      {
+        "User": {
+          "id": "483677443954049034",
+          "email": "",
+          "username": "xx4040",
+          "avatar": "a_2b94530baf6001c212eb3a43d458c2a5",
+          "locale": "",
+          "discriminator": "0",
+          "token": "",
+          "verified": false,
+          "mfa_enabled": false,
+          "bot": false,
+          "public_flags": 64,
+          "premium_type": 0,
+          "system": false,
+          "flags": 64
+        },
+        "Role": "HealR",
+        "Timestamp": "2026-04-25T20:46:11.141657+02:00"
+      },
+      {
+        "User": {
+          "id": "483677443954049034",
+          "email": "",
+          "username": "xx4040",
+          "avatar": "a_2b94530baf6001c212eb3a43d458c2a5",
+          "locale": "",
+          "discriminator": "0",
+          "token": "",
+          "verified": false,
+          "mfa_enabled": false,
+          "bot": false,
+          "public_flags": 64,
+          "premium_type": 0,
+          "system": false,
+          "flags": 64
+        },
+        "Role": "DpsR",
+        "Timestamp": "2026-04-25T20:46:11.6747811+02:00"
+      }
+    ],
+    "keystones": [
+      {
+        "UserID": "226048998220365824",
+        "Count": 1
+      }
+    ],
+    "cancelled": false
+  },
+  {
+    "messageID": "1497961585463918763",
+    "boostInfo": {
+      "Dungeons": 1,
+      "KeyLevel": 10,
+      "Price": 180000,
+      "Note": "Clé Random Timée sauf ( PoS ; Maisara et Triumvirat )",
+      "CutBooster": 29250,
+      "CutAdventure": 62999.99999999999,
+      "CreatorID": "186087363414327296",
+      "ChannelID": "1026930748269273150",
+      "KeysRequired": 1
+    },
+    "signups": [],
+    "keystones": null,
+    "cancelled": false
+  },
+  {
+    "messageID": "1493235117177569336",
+    "boostInfo": {
+      "Dungeons": 1,
+      "KeyLevel": 10,
+      "Price": 390000,
+      "Note": "test",
+      "CutBooster": 63375,
+      "CutAdventure": 136500,
+      "CreatorID": "161949563987558402",
+      "ChannelID": "1462850575724052565",
+      "KeysRequired": 0
+    },
+    "signups": [],
+    "keystones": null,
+    "cancelled": true
   }
 ]
