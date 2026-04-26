@@ -41,15 +41,50 @@ discord-bot
    - Copy the bot token.
 
 4. **Set up environment variables:**
-   Create a `.env` file in the `src` directory and add your bot token:
+   Copy `.env.example` to `.env` and add your bot token:
+   ```bash
+   cp .env.example .env
+   ```
+   
+   Edit `.env` and add your Discord bot token:
    ```
    DISCORD_TOKEN=your_bot_token_here
    ```
+   
+   **⚠️ IMPORTANT:** Never commit the `.env` file. It's automatically ignored by `.gitignore`.
 
 5. **Run the bot:**
    ```
    go run src/main.go
    ```
+
+## Environment Variables
+
+- `DISCORD_TOKEN` - Your Discord bot token (required). Get it from the [Discord Developer Portal](https://discord.com/developers/applications)
+
+## Deployment with Docker and GitHub Container Registry
+
+1. Build the Docker image:
+   ```bash
+   docker build -t discord-bot:latest .
+   ```
+
+2. Set your Discord token as an environment variable when running:
+   ```bash
+   docker run -e DISCORD_TOKEN=your_token_here discord-bot:latest
+   ```
+
+3. For GitHub Container Registry deployment:
+   ```bash
+   docker tag discord-bot:latest ghcr.io/your-username/discord-bot:latest
+   docker push ghcr.io/your-username/discord-bot:latest
+   ```
+
+## Security Notes
+
+- **Never commit secrets**: The `.env` file is in `.gitignore` and will not be tracked
+- **Use GitHub Secrets for CI/CD**: When deploying via GitHub Actions, use repository secrets for sensitive values
+- **Data files**: `boosts_data.json` and other local data files are excluded from version control
 
 ## Usage
 

@@ -1,5 +1,12 @@
 # Environment variables
 .env
+.env.local
+
+# Data files
+boosts_data.json
+CACHED
+ERROR
+*.tar
 
 # Go
 *.exe
