@@ -173,7 +173,13 @@ func parseBoostCommand(content string) (BoostInfo, error) {
 		return info, fmt.Errorf("invalid key level: %v", err)
 	}
 
-	price, err := strconv.ParseFloat(parts[2], 64)
+	// Parse price - remove trailing 'k' if present
+	priceStr := parts[2]
+	if strings.HasSuffix(strings.ToLower(priceStr), "k") {
+		priceStr = priceStr[:len(priceStr)-1]
+	}
+
+	price, err := strconv.ParseFloat(priceStr, 64)
 	if err != nil {
 		return info, fmt.Errorf("invalid price: %v", err)
 	}
@@ -539,7 +545,7 @@ func HandleReactionAdd(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 
 		if hasAllRoles && hasEnoughKeystones {
 			log.Println("Group complete! Displaying selected players.")
-			displaySelectedPlayers(s, r.ChannelID, tank, healer, dps, session.BoostInfo.Note, session.BoostInfo.KeysRequired, len(session.Keystones))
+			displaySelectedPlayers(s, r.ChannelID, tank, healer, dps, session.BoostInfo.Note, session.BoostInfo.KeysRequired, len(session.Keystones), session.BoostInfo.CreatorID)
 			// Clean up the session
 			sessionMu.Lock()
 			delete(signupSessions, r.MessageID)
@@ -666,7 +672,7 @@ func HandleReactionAdd(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 
 	if hasAllRoles && hasEnoughKeystones {
 		log.Println("Group complete! Displaying selected players.")
-		displaySelectedPlayers(s, r.ChannelID, tank, healer, dps, session.BoostInfo.Note, session.BoostInfo.KeysRequired, len(session.Keystones))
+		displaySelectedPlayers(s, r.ChannelID, tank, healer, dps, session.BoostInfo.Note, session.BoostInfo.KeysRequired, len(session.Keystones), session.BoostInfo.CreatorID)
 		// Clean up the session
 		sessionMu.Lock()
 		delete(signupSessions, r.MessageID)
@@ -714,8 +720,8 @@ func HandleReactionRemove(s *discordgo.Session, r *discordgo.MessageReactionRemo
 	}
 }
 
-func displaySelectedPlayers(s *discordgo.Session, channelID string, tank *discordgo.User, healer *discordgo.User, dps []*discordgo.User, note string, keysRequired int, keystoneCount int) {
-	message := "**Boost Group Selected!**\n\n"
+func displaySelectedPlayers(s *discordgo.Session, channelID string, tank *discordgo.User, healer *discordgo.User, dps []*discordgo.User, note string, keysRequired int, keystoneCount int, creatorID string) {
+	message := fmt.Sprintf("<@%s>\n\n**Boost Group Selected!**\n\n", creatorID)
 
 	if tank != nil {
 		message += fmt.Sprintf("Tank: <@%s>\n", tank.ID)
