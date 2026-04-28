@@ -52,18 +52,18 @@ type SignupSession struct {
 var (
 	signupSessions = make(map[string]*SignupSession)
 	sessionMu      sync.Mutex
-	lastBoostID    string  // Track the last boost message ID
+	lastBoostID    string // Track the last boost message ID
 	lastBoostMu    sync.Mutex
 	dataFile       = "boosts_data.json"
 )
 
 // PersistedSession represents a boost session saved to disk
 type PersistedSession struct {
-	MessageID string         `json:"messageID"`
-	BoostInfo BoostInfo      `json:"boostInfo"`
-	Signups   []SignupEntry  `json:"signups"`
+	MessageID string          `json:"messageID"`
+	BoostInfo BoostInfo       `json:"boostInfo"`
+	Signups   []SignupEntry   `json:"signups"`
 	Keystones []KeystoneEntry `json:"keystones"`
-	Cancelled bool           `json:"cancelled"`
+	Cancelled bool            `json:"cancelled"`
 }
 
 // LoadSessions loads all saved sessions from disk
@@ -94,7 +94,7 @@ func LoadSessions() error {
 			Cancelled: p.Cancelled,
 		}
 		signupSessions[p.MessageID] = session
-		
+
 		// Update lastBoostID if this is more recent
 		if lastBoostID == "" {
 			lastBoostID = p.MessageID
@@ -215,8 +215,8 @@ func parseBoostCommand(content string) (BoostInfo, error) {
 }
 
 // selectBestGroup selects 1 tank, 1 healer, 2 dps from signups in order (FIFO)
-// Prioritizes users who have clicket on keystoneR emoji
-// avoiding duplicates (same person can't appear twice)
+// Prioritizes users who have clicked on keystoneR emoji
+// Users can react to multiple roles but will only be selected for ONE role
 func selectBestGroup(signups []SignupEntry, keystoneUsers map[string]bool) (tank *discordgo.User, healer *discordgo.User, dps []*discordgo.User) {
 	dps = make([]*discordgo.User, 0)
 	selectedUsers := make(map[string]bool)
@@ -621,8 +621,8 @@ func HandleReactionAdd(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 				log.Printf("error sending notification message: %v", notifErr)
 			}
 			log.Println("Notification sent successfully")
-		// Save sessions to disk
-		SaveSessions()
+			// Save sessions to disk
+			SaveSessions()
 		}
 
 		log.Println("Cancel operation completed successfully")

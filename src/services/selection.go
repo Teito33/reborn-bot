@@ -12,15 +12,15 @@ func SelectPlayers(signups []models.Player) (models.Player, models.Player, []mod
 
 	for _, player := range signups {
 		switch player.Role {
-		case "tank":
+		case "TankR":
 			if tank.Name == "" {
 				tank = player
 			}
-		case "healer":
+		case "HealR":
 			if healer.Name == "" {
 				healer = player
 			}
-		case "dps":
+		case "DpsR":
 			if len(dpsPlayers) < 2 {
 				dpsPlayers = append(dpsPlayers, player)
 			}
