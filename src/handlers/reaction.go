@@ -539,12 +539,14 @@ func HandleMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		s.MessageReactionAdd(m.ChannelID, msg.ID, "TankR:1031701109540147211")
 		s.MessageReactionAdd(m.ChannelID, msg.ID, "HealR:1031701243342630992")
 		s.MessageReactionAdd(m.ChannelID, msg.ID, "DpsR:1031701306475290675")
-		s.MessageReactionAdd(m.ChannelID, msg.ID, "crossR:1461783456651415770") // Cancel button
 
 		// Add Keystone reaction if keystones are required
 		if boostInfo.KeysRequired > 0 {
 			s.MessageReactionAdd(m.ChannelID, msg.ID, "KeystoneR:1502706534231052458")
 		}
+
+		// Add cancel button last
+		s.MessageReactionAdd(m.ChannelID, msg.ID, "crossR:1461783456651415770")
 
 		// Save sessions to disk
 		SaveSessions()
