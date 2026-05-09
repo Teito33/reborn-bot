@@ -250,6 +250,17 @@ func parseLevelingCommand(content string) (BoostInfo, error) {
 		return info, fmt.Errorf("invalid end level: %v", err)
 	}
 
+	// Validate level ranges (1-90)
+	if startLevel < 1 || startLevel > 90 {
+		return info, fmt.Errorf("start level must be between 1 and 90")
+	}
+	if endLevel < 1 || endLevel > 90 {
+		return info, fmt.Errorf("end level must be between 1 and 90")
+	}
+	if startLevel >= endLevel {
+		return info, fmt.Errorf("start level must be less than end level")
+	}
+
 	// Parse price - remove trailing 'k' if present
 	priceStr := parts[2]
 	if strings.HasSuffix(strings.ToLower(priceStr), "k") {
