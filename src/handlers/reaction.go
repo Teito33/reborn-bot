@@ -22,15 +22,18 @@ type SignupEntry struct {
 
 // BoostInfo contains information about the boost
 type BoostInfo struct {
-	Dungeons     int
-	KeyLevel     int
+	BoostType    string // "m+" or "leveling"
+	Dungeons     int    // For M+ boosts
+	KeyLevel     int    // For M+ boosts
+	StartLevel   int    // For leveling boosts
+	EndLevel     int    // For leveling boosts
 	Price        float64
 	Note         string
 	CutBooster   float64
 	CutAdventure float64
 	CreatorID    string
 	ChannelID    string
-	KeysRequired int
+	KeysRequired int // Only for M+ boosts
 }
 
 // KeystoneEntry represents a user's keystones
@@ -214,8 +217,80 @@ func parseBoostCommand(content string) (BoostInfo, error) {
 	info.Price = price
 	info.Note = note
 	info.KeysRequired = keysRequired
+	info.BoostType = "m+"
 	info.CutBooster = price * 0.1625
 	info.CutAdventure = price * 0.35
+
+	return info, nil
+}
+
+// parseLevelingCommand parses the !lvl command
+// Format: !lvl 80-90 190 or !lvl 80-90 190k "note"
+func parseLevelingCommand(content string) (BoostInfo, error) {
+	info := BoostInfo{BoostType: "leveling"}
+
+	parts := strings.Fields(content)
+	if len(parts) < 3 {
+		return info, fmt.Errorf("usage: !lvl <startLevel>-<endLevel> <price> [note]")
+	}
+
+	// Parse levels (e.g., 80-90)
+	levelParts := strings.Split(parts[1], "-")
+	if len(levelParts) != 2 {
+		return info, fmt.Errorf("invalid format for levels, use <startLevel>-<endLevel>")
+	}
+
+	startLevel, err := strconv.Atoi(levelParts[0])
+	if err != nil {
+		return info, fmt.Errorf("invalid start level: %v", err)
+	}
+
+	endLevel, err := strconv.Atoi(levelParts[1])
+	if err != nil {
+		return info, fmt.Errorf("invalid end level: %v", err)
+	}
+
+	// Validate level ranges
+	// Start level: 1-89
+	// End level: 60-90
+	if startLevel < 1 || startLevel > 89 {
+		return info, fmt.Errorf("start level must be between 1 and 89")
+	}
+	if endLevel < 60 || endLevel > 90 {
+		return info, fmt.Errorf("end level must be between 60 and 90")
+	}
+	if startLevel >= endLevel {
+		return info, fmt.Errorf("start level must be less than end level")
+	}
+
+	// Parse price - remove trailing 'k' if present
+	priceStr := parts[2]
+	if strings.HasSuffix(strings.ToLower(priceStr), "k") {
+		priceStr = priceStr[:len(priceStr)-1]
+	}
+
+	price, err := strconv.ParseFloat(priceStr, 64)
+	if err != nil {
+		return info, fmt.Errorf("invalid price: %v", err)
+	}
+
+	// Price is in thousands (k), so multiply by 1000
+	price = price * 1000
+
+	// Parse optional note
+	note := ""
+	if len(parts) > 3 {
+		note = strings.Join(parts[3:], " ")
+		note = strings.Trim(note, "\"")
+	}
+
+	info.StartLevel = startLevel
+	info.EndLevel = endLevel
+	info.Price = price
+	info.Note = note
+	// For leveling: 30% advertiser, 70% booster
+	info.CutBooster = price * 0.70
+	info.CutAdventure = price * 0.30
 
 	return info, nil
 }
@@ -469,6 +544,95 @@ func HandleMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		// Save sessions to disk
 		SaveSessions()
 	}
+
+	// Command: !lvl - Starts a new leveling boost session
+	if strings.HasPrefix(m.Content, "!lvl") {
+		// Check if user has Management or Advertiser role
+		member, err := s.GuildMember(m.GuildID, m.Author.ID)
+		if err != nil {
+			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("❌ Erreur: impossible de vérifier tes rôles"))
+			return
+		}
+
+		hasPermission := false
+		for _, roleID := range member.Roles {
+			if roleID == "1026892251735015515" || roleID == "1026936430859129013" {
+				hasPermission = true
+				break
+			}
+		}
+
+		if !hasPermission {
+			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("<@%s> Seuls les Advertisers et Managers peuvent démarrer un boost.", m.Author.ID))
+			return
+		}
+
+		boostInfo, err := parseLevelingCommand(m.Content)
+		if err != nil {
+			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("❌ Error: %s", err.Error()))
+			return
+		}
+
+		// Create embed message for leveling boost
+		embed := &discordgo.MessageEmbed{
+			Color: 0x00AA00, // Green for leveling
+			Title: fmt.Sprintf("WoW Leveling Boost %d-%d", boostInfo.StartLevel, boostInfo.EndLevel),
+			Image: &discordgo.MessageEmbedImage{
+				URL: "https://blizzardwatch.com/wp-content/uploads/2022/02/Dong_Zhuo_Gallywix.jpg",
+			},
+			Fields: []*discordgo.MessageEmbedField{
+				{
+					Name:   "Price:",
+					Value:  fmt.Sprintf("%.0fk <:gold:1031594550646550628>", boostInfo.Price/1000),
+					Inline: true,
+				},
+				{
+					Name:   "Booster cut:",
+					Value:  fmt.Sprintf("%.0fk <:gold:1031594550646550628>", boostInfo.CutBooster/1000),
+					Inline: true,
+				},
+			},
+		}
+
+		if boostInfo.Note != "" {
+			embed.Fields = append(embed.Fields, &discordgo.MessageEmbedField{
+				Name:   "Note:",
+				Value:  boostInfo.Note,
+				Inline: false,
+			})
+		}
+
+		// Send the leveling boost with role mention
+		msg, err := s.ChannelMessageSendComplex(m.ChannelID, &discordgo.MessageSend{
+			Content: "<@&1026942518207729744>",
+			Embed:   embed,
+			AllowedMentions: &discordgo.MessageAllowedMentions{
+				Roles: []string{"1026942518207729744"},
+			},
+		})
+		if err != nil {
+			log.Printf("error sending message: %v", err)
+			return
+		}
+
+		// Store boost info in session
+		session := getOrCreateSession(msg.ID)
+		boostInfo.CreatorID = m.Author.ID
+		boostInfo.ChannelID = m.ChannelID
+		session.BoostInfo = boostInfo
+
+		// Save as last boost
+		lastBoostMu.Lock()
+		lastBoostID = msg.ID
+		lastBoostMu.Unlock()
+
+		// Add only the mushlvl reaction for leveling
+		s.MessageReactionAdd(m.ChannelID, msg.ID, "mushlvl:1502706362528960623")
+		s.MessageReactionAdd(m.ChannelID, msg.ID, "crossR:1461783456651415770") // Cancel button
+
+		// Save sessions to disk
+		SaveSessions()
+	}
 }
 
 func HandleReactionAdd(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
@@ -504,6 +668,86 @@ func HandleReactionAdd(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 	}
 
 	log.Printf("User %s reacted with emoji Name=%s ID=%s", user.Username, r.Emoji.Name, r.Emoji.ID)
+
+	// Handle leveling boost - only one reaction needed for mushlvl
+	if session.BoostInfo.BoostType == "leveling" {
+		// Check if cancel emoji
+		if r.Emoji.Name == "❌" || r.Emoji.Name == "crossR" || r.Emoji.ID == "1461783456651415770" {
+			// Handle cancellation (same as for M+)
+			// Get guild member to check roles
+			member, err := s.GuildMember(r.GuildID, r.UserID)
+			hasManagementRole := false
+
+			if err == nil {
+				// Check if user has Management role
+				for _, roleID := range member.Roles {
+					if roleID == "1026892251735015515" {
+						hasManagementRole = true
+						break
+					}
+				}
+			}
+
+			// Check if user is creator or has Management role
+			if r.UserID != session.BoostInfo.CreatorID && !hasManagementRole {
+				log.Printf("User %s is not the creator and doesn't have Management role, ignoring cancel", r.UserID)
+				s.ChannelMessageSend(r.ChannelID, fmt.Sprintf("<@%s> Vous n'avez pas l'autorisation d'annuler ce boost", r.UserID))
+				return
+			}
+
+			if session.Cancelled {
+				log.Println("Boost already cancelled")
+				return
+			}
+
+			log.Println("Cancelling leveling boost...")
+			session.Cancelled = true
+
+			// Edit the message to show it's cancelled
+			cancelEmbed := &discordgo.MessageEmbed{
+				Title:       "WoW Leveling Boost - ❌ ANNULÉ",
+				Color:       0xFF0000,
+				Description: "Ce boost a été annulé",
+			}
+
+			_, editErr := s.ChannelMessageEditEmbed(r.ChannelID, r.MessageID, cancelEmbed)
+			if editErr != nil {
+				log.Printf("error editing message: %v", editErr)
+			}
+
+			// Get all users who reacted (without duplicates)
+			mentionedUsers := make(map[string]bool)
+			var mentions []string
+			for _, signup := range session.Signups {
+				if !mentionedUsers[signup.User.ID] {
+					mentions = append(mentions, fmt.Sprintf("<@%s>", signup.User.ID))
+					mentionedUsers[signup.User.ID] = true
+				}
+			}
+
+			if len(mentions) > 0 {
+				notifMessage := fmt.Sprintf("⚠️ **Boost annulé!**\n\n%s\n\nCe boost a été annulé par <@%s>", strings.Join(mentions, " "), r.UserID)
+				s.ChannelMessageSend(r.ChannelID, notifMessage)
+				SaveSessions()
+			}
+			return
+		}
+
+		// Check if mushlvl emoji (leveling boost reaction)
+		if r.Emoji.Name == "mushlvl" || r.Emoji.ID == "1502706362528960623" {
+			// For leveling boost, immediately display selected player and launch
+			displaySelectedPlayersLeveling(s, r.ChannelID, user, session.BoostInfo.Note, session.BoostInfo.CreatorID)
+
+			// Clean up the session
+			sessionMu.Lock()
+			delete(signupSessions, r.MessageID)
+			sessionMu.Unlock()
+
+			// Save sessions to disk
+			SaveSessions()
+		}
+		return
+	}
 
 	// Check if keystone emoji (by Name or ID)
 	if r.Emoji.Name == "KeystoneR" || r.Emoji.ID == "1031313236324257823" {
@@ -682,6 +926,20 @@ func HandleReactionAdd(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 	} else {
 		// Save sessions to disk even if not complete
 		SaveSessions()
+	}
+}
+
+func displaySelectedPlayersLeveling(s *discordgo.Session, channelID string, booster *discordgo.User, note string, creatorID string) {
+	message := fmt.Sprintf("<@%s>\n\n**Leveling Boost Started!**\n\n", creatorID)
+	message += fmt.Sprintf("Booster: <@%s>\n", booster.ID)
+
+	if note != "" {
+		message += fmt.Sprintf("\n**Note:** %s", note)
+	}
+
+	_, err := s.ChannelMessageSend(channelID, message)
+	if err != nil {
+		log.Printf("error sending selected players message: %v", err)
 	}
 }
 
