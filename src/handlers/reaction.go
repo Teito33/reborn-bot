@@ -89,6 +89,11 @@ func LoadSessions() error {
 	defer sessionMu.Unlock()
 
 	for _, p := range persisted {
+		// Ensure BoostType is set for old sessions
+		if p.BoostInfo.BoostType == "" {
+			p.BoostInfo.BoostType = "m+"
+		}
+		
 		session := &SignupSession{
 			MessageID: p.MessageID,
 			BoostInfo: p.BoostInfo,
@@ -153,7 +158,7 @@ func getOrCreateSession(messageID string) *SignupSession {
 // Format: !boost 2x12 140 k2 "note"
 // k2 = 2 keystones required (optional)
 func parseBoostCommand(content string) (BoostInfo, error) {
-	info := BoostInfo{KeysRequired: 0}
+	info := BoostInfo{KeysRequired: 0, BoostType: "m+"}
 
 	parts := strings.Fields(content)
 	if len(parts) < 3 {
@@ -749,8 +754,8 @@ func HandleReactionAdd(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 		return
 	}
 
-	// Check if keystone emoji (by Name or ID)
-	if r.Emoji.Name == "KeystoneR" || r.Emoji.ID == "1031313236324257823" {
+	// Check if keystone emoji (by Name or ID) - only for M+ boosts
+	if (r.Emoji.Name == "KeystoneR" || r.Emoji.ID == "1031313236324257823") && session.BoostInfo.BoostType == "m+" {
 		// Check if keystones are required for this boost
 		if session.BoostInfo.KeysRequired <= 0 {
 			return
@@ -884,48 +889,51 @@ func HandleReactionAdd(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 		return
 	}
 
-	// Add signup to the list
-	session.Signups = append(session.Signups, SignupEntry{
-		User:      user,
-		Role:      r.Emoji.Name,
-		Timestamp: time.Now(),
-	})
+	// For M+ boosts, accept TankR/HealR/DpsR reactions
+	if session.BoostInfo.BoostType == "m+" {
+		// Add signup to the list
+		session.Signups = append(session.Signups, SignupEntry{
+			User:      user,
+			Role:      r.Emoji.Name,
+			Timestamp: time.Now(),
+		})
 
-	log.Printf("Total signups: %d", len(session.Signups))
-	for i, signup := range session.Signups {
-		log.Printf("  [%d] %s - %s", i, signup.User.Username, signup.Role)
-	}
+		log.Printf("Total signups: %d", len(session.Signups))
+		for i, signup := range session.Signups {
+			log.Printf("  [%d] %s - %s", i, signup.User.Username, signup.Role)
+		}
 
-	// Create a map of keystoneUsers for priority selection
-	keystoneUsers := make(map[string]bool)
-	for _, ks := range session.Keystones {
-		keystoneUsers[ks.UserID] = true
-	}
+		// Create a map of keystoneUsers for priority selection
+		keystoneUsers := make(map[string]bool)
+		for _, ks := range session.Keystones {
+			keystoneUsers[ks.UserID] = true
+		}
 
-	// Try to select a full group (prioritizing keystoneUsers)
-	tank, healer, dps := selectBestGroup(session.Signups, keystoneUsers)
+		// Try to select a full group (prioritizing keystoneUsers)
+		tank, healer, dps := selectBestGroup(session.Signups, keystoneUsers)
 
-	log.Printf("Selected - Tank: %v, Healer: %v, DPS: %d", tank != nil, healer != nil, len(dps))
+		log.Printf("Selected - Tank: %v, Healer: %v, DPS: %d", tank != nil, healer != nil, len(dps))
 
-	// Check if we have all roles filled (1 tank, 1 healer, 2 DPS) and keystones if required
-	hasAllRoles := tank != nil && healer != nil && len(dps) == 2
-	hasEnoughKeystones := session.BoostInfo.KeysRequired <= 0 || len(session.Keystones) >= session.BoostInfo.KeysRequired
+		// Check if we have all roles filled (1 tank, 1 healer, 2 DPS) and keystones if required
+		hasAllRoles := tank != nil && healer != nil && len(dps) == 2
+		hasEnoughKeystones := session.BoostInfo.KeysRequired <= 0 || len(session.Keystones) >= session.BoostInfo.KeysRequired
 
-	log.Printf("Boost check - AllRoles: %v, EnoughKeystones: %v (Required: %d, Have: %d)",
-		hasAllRoles, hasEnoughKeystones, session.BoostInfo.KeysRequired, len(session.Keystones))
+		log.Printf("Boost check - AllRoles: %v, EnoughKeystones: %v (Required: %d, Have: %d)",
+			hasAllRoles, hasEnoughKeystones, session.BoostInfo.KeysRequired, len(session.Keystones))
 
-	if hasAllRoles && hasEnoughKeystones {
-		log.Println("Group complete! Displaying selected players.")
-		displaySelectedPlayers(s, r.ChannelID, tank, healer, dps, session.BoostInfo.Note, session.BoostInfo.KeysRequired, len(session.Keystones), session.BoostInfo.CreatorID)
-		// Clean up the session
-		sessionMu.Lock()
-		delete(signupSessions, r.MessageID)
-		sessionMu.Unlock()
-		// Save sessions to disk
-		SaveSessions()
-	} else {
-		// Save sessions to disk even if not complete
-		SaveSessions()
+		if hasAllRoles && hasEnoughKeystones {
+			log.Println("Group complete! Displaying selected players.")
+			displaySelectedPlayers(s, r.ChannelID, tank, healer, dps, session.BoostInfo.Note, session.BoostInfo.KeysRequired, len(session.Keystones), session.BoostInfo.CreatorID)
+			// Clean up the session
+			sessionMu.Lock()
+			delete(signupSessions, r.MessageID)
+			sessionMu.Unlock()
+			// Save sessions to disk
+			SaveSessions()
+		} else {
+			// Save sessions to disk even if not complete
+			SaveSessions()
+		}
 	}
 }
 
