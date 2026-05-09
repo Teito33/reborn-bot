@@ -250,12 +250,14 @@ func parseLevelingCommand(content string) (BoostInfo, error) {
 		return info, fmt.Errorf("invalid end level: %v", err)
 	}
 
-	// Validate level ranges (1-90)
-	if startLevel < 1 || startLevel > 90 {
-		return info, fmt.Errorf("start level must be between 1 and 90")
+	// Validate level ranges
+	// Start level: 1-89
+	// End level: 60-90
+	if startLevel < 1 || startLevel > 89 {
+		return info, fmt.Errorf("start level must be between 1 and 89")
 	}
-	if endLevel < 1 || endLevel > 90 {
-		return info, fmt.Errorf("end level must be between 1 and 90")
+	if endLevel < 60 || endLevel > 90 {
+		return info, fmt.Errorf("end level must be between 60 and 90")
 	}
 	if startLevel >= endLevel {
 		return info, fmt.Errorf("start level must be less than end level")
