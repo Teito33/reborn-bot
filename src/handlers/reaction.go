@@ -543,7 +543,7 @@ func HandleMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 		// Add Keystone reaction if keystones are required
 		if boostInfo.KeysRequired > 0 {
-			s.MessageReactionAdd(m.ChannelID, msg.ID, "KeystoneR:1031313236324257823")
+			s.MessageReactionAdd(m.ChannelID, msg.ID, "KeystoneR:1502706534231052458")
 		}
 
 		// Save sessions to disk
@@ -755,7 +755,7 @@ func HandleReactionAdd(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 	}
 
 	// Check if keystone emoji (by Name or ID) - only for M+ boosts
-	if (r.Emoji.Name == "KeystoneR" || r.Emoji.ID == "1031313236324257823") && session.BoostInfo.BoostType == "m+" {
+	if (r.Emoji.Name == "KeystoneR" || r.Emoji.ID == "1502706534231052458") && session.BoostInfo.BoostType == "m+" {
 		// Check if keystones are required for this boost
 		if session.BoostInfo.KeysRequired <= 0 {
 			return
@@ -966,7 +966,7 @@ func HandleReactionRemove(s *discordgo.Session, r *discordgo.MessageReactionRemo
 	defer session.mu.Unlock()
 
 	// Check if this is a keystone removal
-	if r.Emoji.Name == "KeystoneR" || r.Emoji.ID == "1031313236324257823" {
+	if r.Emoji.Name == "KeystoneR" || r.Emoji.ID == "1502706534231052458" {
 		// Remove the keystone entry
 		for i, ks := range session.Keystones {
 			if ks.UserID == r.UserID {
