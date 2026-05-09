@@ -224,14 +224,14 @@ func parseBoostCommand(content string) (BoostInfo, error) {
 	return info, nil
 }
 
-// parseLevelingCommand parses the !lvl command
-// Format: !lvl 80-90 190 or !lvl 80-90 190k "note"
+// parseLevelingCommand parses the !plvl command
+// Format: !plvl 1-90 190 or !plvl 1-90 190k Ceci est une note
 func parseLevelingCommand(content string) (BoostInfo, error) {
 	info := BoostInfo{BoostType: "leveling"}
 
 	parts := strings.Fields(content)
 	if len(parts) < 3 {
-		return info, fmt.Errorf("usage: !lvl <startLevel>-<endLevel> <price> [note]")
+		return info, fmt.Errorf("usage: !plvl <startLevel>-<endLevel> <price> [note]")
 	}
 
 	// Parse levels (e.g., 80-90)
@@ -545,8 +545,8 @@ func HandleMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		SaveSessions()
 	}
 
-	// Command: !lvl - Starts a new leveling boost session
-	if strings.HasPrefix(m.Content, "!lvl") {
+	// Command: !plvl - Starts a new leveling boost session
+	if strings.HasPrefix(m.Content, "!plvl") {
 		// Check if user has Management or Advertiser role
 		member, err := s.GuildMember(m.GuildID, m.Author.ID)
 		if err != nil {
