@@ -348,18 +348,17 @@ func selectBestGroup(signups []SignupEntry, keystoneUsers map[string]bool) (tank
 		return hasTank && hasHeal && dpsCount >= 2
 	}
 
-	// Helper function to select users for a group using constraint-first algorithm
+	// Helper function to select users in FIFO order
 	selectUsersFromGroup := func(keystoneOnly bool) {
 		selectedUsers := make(map[string]bool)
-
-		// Collect unique users in FIFO order and separate by flexibility
 		seenUsers := make(map[string]bool)
-		var constrainedUsers []string  // Users who can only do ONE role
-		var flexibleUsers []string     // Users who can do MULTIPLE roles
 
+		// Process signups in FIFO order, handling multi-tag users on their first appearance
 		for _, signup := range signups {
 			userID := signup.User.ID
-			if seenUsers[userID] {
+
+			// Skip if already selected or already processed
+			if selectedUsers[userID] || seenUsers[userID] {
 				continue
 			}
 			seenUsers[userID] = true
@@ -372,51 +371,7 @@ func selectBestGroup(signups []SignupEntry, keystoneUsers map[string]bool) (tank
 				continue
 			}
 
-			// Count how many roles this user can do
-			rolesAvailable := 0
-			if userRoles[userID]["TankR"] {
-				rolesAvailable++
-			}
-			if userRoles[userID]["HealR"] {
-				rolesAvailable++
-			}
-			if userRoles[userID]["DpsR"] {
-				rolesAvailable++
-			}
-
-			if rolesAvailable == 1 {
-				constrainedUsers = append(constrainedUsers, userID)
-			} else if rolesAvailable > 1 {
-				flexibleUsers = append(flexibleUsers, userID)
-			}
-		}
-
-		// First: select constrained users (those who can only do ONE role)
-		for _, userID := range constrainedUsers {
-			if tank == nil && userRoles[userID]["TankR"] {
-				tank = userObjects[userID]
-				selectedUsers[userID] = true
-			} else if healer == nil && userRoles[userID]["HealR"] {
-				healer = userObjects[userID]
-				selectedUsers[userID] = true
-			} else if len(dps) < 2 && userRoles[userID]["DpsR"] {
-				dps = append(dps, userObjects[userID])
-				selectedUsers[userID] = true
-			}
-
-			// Early exit if all roles filled
-			if tank != nil && healer != nil && len(dps) == 2 {
-				return
-			}
-		}
-
-		// Second: select flexible users (those who can do MULTIPLE roles) with priority Tank > Heal > DPS
-		for _, userID := range flexibleUsers {
-			if selectedUsers[userID] {
-				continue
-			}
-
-			// Assign based on priority and availability
+			// Try to assign this user with priority: Tank > Heal > DPS
 			if tank == nil && userRoles[userID]["TankR"] {
 				tank = userObjects[userID]
 				selectedUsers[userID] = true
@@ -444,53 +399,17 @@ func selectBestGroup(signups []SignupEntry, keystoneUsers map[string]bool) (tank
 	// Second pass: check if combining keystoneUsers + non-keystoneUsers can form a group
 	if canFormGroup(false) {
 		selectedUsers := make(map[string]bool)
-
-		// First select from keystoneUsers
 		seenUsers := make(map[string]bool)
-		var constrainedKeystones []string
-		var flexibleKeystones []string
 
+		// First: process keystoneUsers in FIFO order
 		for _, signup := range signups {
 			userID := signup.User.ID
-			if !keystoneUsers[userID] || seenUsers[userID] {
+			if !keystoneUsers[userID] || seenUsers[userID] || selectedUsers[userID] {
 				continue
 			}
 			seenUsers[userID] = true
 
-			rolesCount := 0
-			if userRoles[userID]["TankR"] {
-				rolesCount++
-			}
-			if userRoles[userID]["HealR"] {
-				rolesCount++
-			}
-			if userRoles[userID]["DpsR"] {
-				rolesCount++
-			}
-
-			if rolesCount == 1 {
-				constrainedKeystones = append(constrainedKeystones, userID)
-			} else {
-				flexibleKeystones = append(flexibleKeystones, userID)
-			}
-		}
-
-		// Select constrained keystoneUsers first
-		for _, userID := range constrainedKeystones {
-			if tank == nil && userRoles[userID]["TankR"] {
-				tank = userObjects[userID]
-				selectedUsers[userID] = true
-			} else if healer == nil && userRoles[userID]["HealR"] {
-				healer = userObjects[userID]
-				selectedUsers[userID] = true
-			} else if len(dps) < 2 && userRoles[userID]["DpsR"] {
-				dps = append(dps, userObjects[userID])
-				selectedUsers[userID] = true
-			}
-		}
-
-		// Then select flexible keystoneUsers
-		for _, userID := range flexibleKeystones {
+			// Try to assign with priority: Tank > Heal > DPS
 			if tank == nil && userRoles[userID]["TankR"] {
 				tank = userObjects[userID]
 				selectedUsers[userID] = true
@@ -507,11 +426,8 @@ func selectBestGroup(signups []SignupEntry, keystoneUsers map[string]bool) (tank
 			}
 		}
 
-		// If still not complete, select from non-keystoneUsers
+		// Then: process non-keystoneUsers in FIFO order
 		seenUsers = make(map[string]bool)
-		var constrainedNonKeystones []string
-		var flexibleNonKeystones []string
-
 		for _, signup := range signups {
 			userID := signup.User.ID
 			if keystoneUsers[userID] || seenUsers[userID] || selectedUsers[userID] {
@@ -519,40 +435,7 @@ func selectBestGroup(signups []SignupEntry, keystoneUsers map[string]bool) (tank
 			}
 			seenUsers[userID] = true
 
-			rolesCount := 0
-			if userRoles[userID]["TankR"] {
-				rolesCount++
-			}
-			if userRoles[userID]["HealR"] {
-				rolesCount++
-			}
-			if userRoles[userID]["DpsR"] {
-				rolesCount++
-			}
-
-			if rolesCount == 1 {
-				constrainedNonKeystones = append(constrainedNonKeystones, userID)
-			} else {
-				flexibleNonKeystones = append(flexibleNonKeystones, userID)
-			}
-		}
-
-		// Select constrained non-keystoneUsers
-		for _, userID := range constrainedNonKeystones {
-			if tank == nil && userRoles[userID]["TankR"] {
-				tank = userObjects[userID]
-				selectedUsers[userID] = true
-			} else if healer == nil && userRoles[userID]["HealR"] {
-				healer = userObjects[userID]
-				selectedUsers[userID] = true
-			} else if len(dps) < 2 && userRoles[userID]["DpsR"] {
-				dps = append(dps, userObjects[userID])
-				selectedUsers[userID] = true
-			}
-		}
-
-		// Finally select flexible non-keystoneUsers
-		for _, userID := range flexibleNonKeystones {
+			// Try to assign with priority: Tank > Heal > DPS
 			if tank == nil && userRoles[userID]["TankR"] {
 				tank = userObjects[userID]
 				selectedUsers[userID] = true
