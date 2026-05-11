@@ -348,14 +348,14 @@ func selectBestGroup(signups []SignupEntry, keystoneUsers map[string]bool) (tank
 		return hasTank && hasHeal && dpsCount >= 2
 	}
 
-	// Helper function to select users for a group
+	// Helper function to select users for a group using constraint-first algorithm
 	selectUsersFromGroup := func(keystoneOnly bool) {
 		selectedUsers := make(map[string]bool)
 
-		// Collect unique users in FIFO order
+		// Collect unique users in FIFO order and separate by flexibility
 		seenUsers := make(map[string]bool)
-		var orderedUsers []*discordgo.User
-		var orderedUserIDs []string
+		var constrainedUsers []string  // Users who can only do ONE role
+		var flexibleUsers []string     // Users who can do MULTIPLE roles
 
 		for _, signup := range signups {
 			userID := signup.User.ID
@@ -372,22 +372,59 @@ func selectBestGroup(signups []SignupEntry, keystoneUsers map[string]bool) (tank
 				continue
 			}
 
-			if !selectedUsers[userID] {
-				orderedUsers = append(orderedUsers, signup.User)
-				orderedUserIDs = append(orderedUserIDs, userID)
+			// Count how many roles this user can do
+			rolesAvailable := 0
+			if userRoles[userID]["TankR"] {
+				rolesAvailable++
+			}
+			if userRoles[userID]["HealR"] {
+				rolesAvailable++
+			}
+			if userRoles[userID]["DpsR"] {
+				rolesAvailable++
+			}
+
+			if rolesAvailable == 1 {
+				constrainedUsers = append(constrainedUsers, userID)
+			} else if rolesAvailable > 1 {
+				flexibleUsers = append(flexibleUsers, userID)
 			}
 		}
 
-		// Select users based on role priority: Tank > Healer > DPS
-		for i, userID := range orderedUserIDs {
-			if tank == nil && selectedUsers[userID] == false && userRoles[userID]["TankR"] {
-				tank = orderedUsers[i]
+		// First: select constrained users (those who can only do ONE role)
+		for _, userID := range constrainedUsers {
+			if tank == nil && userRoles[userID]["TankR"] {
+				tank = userObjects[userID]
 				selectedUsers[userID] = true
-			} else if healer == nil && selectedUsers[userID] == false && userRoles[userID]["HealR"] {
-				healer = orderedUsers[i]
+			} else if healer == nil && userRoles[userID]["HealR"] {
+				healer = userObjects[userID]
 				selectedUsers[userID] = true
-			} else if len(dps) < 2 && selectedUsers[userID] == false && userRoles[userID]["DpsR"] {
-				dps = append(dps, orderedUsers[i])
+			} else if len(dps) < 2 && userRoles[userID]["DpsR"] {
+				dps = append(dps, userObjects[userID])
+				selectedUsers[userID] = true
+			}
+
+			// Early exit if all roles filled
+			if tank != nil && healer != nil && len(dps) == 2 {
+				return
+			}
+		}
+
+		// Second: select flexible users (those who can do MULTIPLE roles) with priority Tank > Heal > DPS
+		for _, userID := range flexibleUsers {
+			if selectedUsers[userID] {
+				continue
+			}
+
+			// Assign based on priority and availability
+			if tank == nil && userRoles[userID]["TankR"] {
+				tank = userObjects[userID]
+				selectedUsers[userID] = true
+			} else if healer == nil && userRoles[userID]["HealR"] {
+				healer = userObjects[userID]
+				selectedUsers[userID] = true
+			} else if len(dps) < 2 && userRoles[userID]["DpsR"] {
+				dps = append(dps, userObjects[userID])
 				selectedUsers[userID] = true
 			}
 
@@ -406,13 +443,12 @@ func selectBestGroup(signups []SignupEntry, keystoneUsers map[string]bool) (tank
 
 	// Second pass: check if combining keystoneUsers + non-keystoneUsers can form a group
 	if canFormGroup(false) {
-		// Reset and select from keystoneUsers first
 		selectedUsers := make(map[string]bool)
 
-		// Collect unique keystone users in FIFO order
+		// First select from keystoneUsers
 		seenUsers := make(map[string]bool)
-		var orderedUsers []*discordgo.User
-		var orderedUserIDs []string
+		var constrainedKeystones []string
+		var flexibleKeystones []string
 
 		for _, signup := range signups {
 			userID := signup.User.ID
@@ -420,28 +456,61 @@ func selectBestGroup(signups []SignupEntry, keystoneUsers map[string]bool) (tank
 				continue
 			}
 			seenUsers[userID] = true
-			orderedUsers = append(orderedUsers, signup.User)
-			orderedUserIDs = append(orderedUserIDs, userID)
+
+			rolesCount := 0
+			if userRoles[userID]["TankR"] {
+				rolesCount++
+			}
+			if userRoles[userID]["HealR"] {
+				rolesCount++
+			}
+			if userRoles[userID]["DpsR"] {
+				rolesCount++
+			}
+
+			if rolesCount == 1 {
+				constrainedKeystones = append(constrainedKeystones, userID)
+			} else {
+				flexibleKeystones = append(flexibleKeystones, userID)
+			}
 		}
 
-		// Select keystone users with priority
-		for i, userID := range orderedUserIDs {
+		// Select constrained keystoneUsers first
+		for _, userID := range constrainedKeystones {
 			if tank == nil && userRoles[userID]["TankR"] {
-				tank = orderedUsers[i]
+				tank = userObjects[userID]
 				selectedUsers[userID] = true
 			} else if healer == nil && userRoles[userID]["HealR"] {
-				healer = orderedUsers[i]
+				healer = userObjects[userID]
 				selectedUsers[userID] = true
 			} else if len(dps) < 2 && userRoles[userID]["DpsR"] {
-				dps = append(dps, orderedUsers[i])
+				dps = append(dps, userObjects[userID])
 				selectedUsers[userID] = true
 			}
 		}
 
-		// Then select from non-keystone users to complete the group
+		// Then select flexible keystoneUsers
+		for _, userID := range flexibleKeystones {
+			if tank == nil && userRoles[userID]["TankR"] {
+				tank = userObjects[userID]
+				selectedUsers[userID] = true
+			} else if healer == nil && userRoles[userID]["HealR"] {
+				healer = userObjects[userID]
+				selectedUsers[userID] = true
+			} else if len(dps) < 2 && userRoles[userID]["DpsR"] {
+				dps = append(dps, userObjects[userID])
+				selectedUsers[userID] = true
+			}
+
+			if tank != nil && healer != nil && len(dps) == 2 {
+				return
+			}
+		}
+
+		// If still not complete, select from non-keystoneUsers
 		seenUsers = make(map[string]bool)
-		orderedUsers = make([]*discordgo.User, 0)
-		orderedUserIDs = make([]string, 0)
+		var constrainedNonKeystones []string
+		var flexibleNonKeystones []string
 
 		for _, signup := range signups {
 			userID := signup.User.ID
@@ -449,24 +518,52 @@ func selectBestGroup(signups []SignupEntry, keystoneUsers map[string]bool) (tank
 				continue
 			}
 			seenUsers[userID] = true
-			orderedUsers = append(orderedUsers, signup.User)
-			orderedUserIDs = append(orderedUserIDs, userID)
+
+			rolesCount := 0
+			if userRoles[userID]["TankR"] {
+				rolesCount++
+			}
+			if userRoles[userID]["HealR"] {
+				rolesCount++
+			}
+			if userRoles[userID]["DpsR"] {
+				rolesCount++
+			}
+
+			if rolesCount == 1 {
+				constrainedNonKeystones = append(constrainedNonKeystones, userID)
+			} else {
+				flexibleNonKeystones = append(flexibleNonKeystones, userID)
+			}
 		}
 
-		// Select non-keystone users with priority
-		for i, userID := range orderedUserIDs {
+		// Select constrained non-keystoneUsers
+		for _, userID := range constrainedNonKeystones {
 			if tank == nil && userRoles[userID]["TankR"] {
-				tank = orderedUsers[i]
+				tank = userObjects[userID]
 				selectedUsers[userID] = true
 			} else if healer == nil && userRoles[userID]["HealR"] {
-				healer = orderedUsers[i]
+				healer = userObjects[userID]
 				selectedUsers[userID] = true
 			} else if len(dps) < 2 && userRoles[userID]["DpsR"] {
-				dps = append(dps, orderedUsers[i])
+				dps = append(dps, userObjects[userID])
+				selectedUsers[userID] = true
+			}
+		}
+
+		// Finally select flexible non-keystoneUsers
+		for _, userID := range flexibleNonKeystones {
+			if tank == nil && userRoles[userID]["TankR"] {
+				tank = userObjects[userID]
+				selectedUsers[userID] = true
+			} else if healer == nil && userRoles[userID]["HealR"] {
+				healer = userObjects[userID]
+				selectedUsers[userID] = true
+			} else if len(dps) < 2 && userRoles[userID]["DpsR"] {
+				dps = append(dps, userObjects[userID])
 				selectedUsers[userID] = true
 			}
 
-			// Early exit if all roles filled
 			if tank != nil && healer != nil && len(dps) == 2 {
 				return
 			}
