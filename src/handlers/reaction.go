@@ -303,76 +303,82 @@ func parseLevelingCommand(content string) (BoostInfo, error) {
 // selectBestGroup selects 1 tank, 1 healer, 2 dps from signups in order (FIFO)
 // Prioritizes users who have clicked on keystoneR emoji
 // Users can react to multiple roles but will only be selected for ONE role
+// Role priority: Tank > Healer > DPS
 func selectBestGroup(signups []SignupEntry, keystoneUsers map[string]bool) (tank *discordgo.User, healer *discordgo.User, dps []*discordgo.User) {
 	dps = make([]*discordgo.User, 0)
 	selectedUsers := make(map[string]bool)
-
+	
+	// Build a map of all roles clicked by each user
+	userRoles := make(map[string]map[string]bool)
+	userFirstAppearance := make(map[string]int) // Track FIFO order
+	
+	for i, signup := range signups {
+		userID := signup.User.ID
+		if userRoles[userID] == nil {
+			userRoles[userID] = make(map[string]bool)
+			userFirstAppearance[userID] = i
+		}
+		userRoles[userID][signup.Role] = true
+	}
+	
+	// Helper function to process users with priority roles
+	processUsersWithPriority := func(keystoneOnly bool) {
+		// Collect unique users in FIFO order
+		seenUsers := make(map[string]bool)
+		var orderedUsers []*discordgo.User
+		var orderedUserIDs []string
+		
+		for _, signup := range signups {
+			userID := signup.User.ID
+			if seenUsers[userID] {
+				continue
+			}
+			seenUsers[userID] = true
+			
+			// Filter by keystone status if needed
+			if keystoneOnly && !keystoneUsers[userID] {
+				continue
+			}
+			if !keystoneOnly && keystoneUsers[userID] {
+				continue
+			}
+			
+			if !selectedUsers[userID] {
+				orderedUsers = append(orderedUsers, signup.User)
+				orderedUserIDs = append(orderedUserIDs, userID)
+			}
+		}
+		
+		// Select users based on role priority
+		for i, userID := range orderedUserIDs {
+			user := orderedUsers[i]
+			roles := userRoles[userID]
+			
+			// Priority: Tank > Healer > DPS
+			if roles["TankR"] && tank == nil {
+				tank = user
+				selectedUsers[userID] = true
+			} else if roles["HealR"] && healer == nil {
+				healer = user
+				selectedUsers[userID] = true
+			} else if roles["DpsR"] && len(dps) < 2 {
+				dps = append(dps, user)
+				selectedUsers[userID] = true
+			}
+			
+			// Early exit if all roles filled
+			if tank != nil && healer != nil && len(dps) == 2 {
+				return
+			}
+		}
+	}
+	
 	// First pass: prioritize keystoneUsers
-	for _, signup := range signups {
-		userID := signup.User.ID
-
-		// Skip if no keystone or already selected
-		if !keystoneUsers[userID] || selectedUsers[userID] {
-			continue
-		}
-
-		switch signup.Role {
-		case "TankR":
-			if tank == nil {
-				tank = signup.User
-				selectedUsers[userID] = true
-			}
-		case "HealR":
-			if healer == nil {
-				healer = signup.User
-				selectedUsers[userID] = true
-			}
-		case "DpsR":
-			if len(dps) < 2 {
-				dps = append(dps, signup.User)
-				selectedUsers[userID] = true
-			}
-		}
-
-		// Check if we have all roles filled
-		if tank != nil && healer != nil && len(dps) == 2 {
-			return
-		}
-	}
-
+	processUsersWithPriority(true)
+	
 	// Second pass: fill remaining slots with non-keystone users
-	for _, signup := range signups {
-		userID := signup.User.ID
-
-		// Skip if already selected or has keystone (already processed)
-		if selectedUsers[userID] || keystoneUsers[userID] {
-			continue
-		}
-
-		switch signup.Role {
-		case "TankR":
-			if tank == nil {
-				tank = signup.User
-				selectedUsers[userID] = true
-			}
-		case "HealR":
-			if healer == nil {
-				healer = signup.User
-				selectedUsers[userID] = true
-			}
-		case "DpsR":
-			if len(dps) < 2 {
-				dps = append(dps, signup.User)
-				selectedUsers[userID] = true
-			}
-		}
-
-		// Check if we have all roles filled
-		if tank != nil && healer != nil && len(dps) == 2 {
-			return
-		}
-	}
-
+	processUsersWithPriority(false)
+	
 	return
 }
 
