@@ -348,18 +348,22 @@ func selectBestGroup(signups []SignupEntry, keystoneUsers map[string]bool) (tank
 		return hasTank && hasHeal && dpsCount >= 2
 	}
 
-	// Helper function to select users for a group using constraint-first algorithm
+	// Helper function to select users in FIFO order, with two passes:
+	// 1st pass: constrained users (single role)
+	// 2nd pass: flexible users (multiple roles)
 	selectUsersFromGroup := func(keystoneOnly bool) {
 		selectedUsers := make(map[string]bool)
 
-		// Collect unique users in FIFO order and separate by flexibility
+		// Build maps of constrained and flexible users
 		seenUsers := make(map[string]bool)
-		var constrainedUsers []string  // Users who can only do ONE role
-		var flexibleUsers []string     // Users who can do MULTIPLE roles
+		var constrainedUserIDs []string
+		var flexibleUserIDs []string
 
 		for _, signup := range signups {
 			userID := signup.User.ID
-			if seenUsers[userID] {
+
+			// Skip if already processed or selected
+			if seenUsers[userID] || selectedUsers[userID] {
 				continue
 			}
 			seenUsers[userID] = true
@@ -372,27 +376,27 @@ func selectBestGroup(signups []SignupEntry, keystoneUsers map[string]bool) (tank
 				continue
 			}
 
-			// Count how many roles this user can do
-			rolesAvailable := 0
+			// Count roles for this user
+			roleCount := 0
 			if userRoles[userID]["TankR"] {
-				rolesAvailable++
+				roleCount++
 			}
 			if userRoles[userID]["HealR"] {
-				rolesAvailable++
+				roleCount++
 			}
 			if userRoles[userID]["DpsR"] {
-				rolesAvailable++
+				roleCount++
 			}
 
-			if rolesAvailable == 1 {
-				constrainedUsers = append(constrainedUsers, userID)
-			} else if rolesAvailable > 1 {
-				flexibleUsers = append(flexibleUsers, userID)
+			if roleCount == 1 {
+				constrainedUserIDs = append(constrainedUserIDs, userID)
+			} else if roleCount > 1 {
+				flexibleUserIDs = append(flexibleUserIDs, userID)
 			}
 		}
 
-		// First: select constrained users (those who can only do ONE role)
-		for _, userID := range constrainedUsers {
+		// 1st pass: assign constrained users (FIFO within constrained group)
+		for _, userID := range constrainedUserIDs {
 			if tank == nil && userRoles[userID]["TankR"] {
 				tank = userObjects[userID]
 				selectedUsers[userID] = true
@@ -404,19 +408,14 @@ func selectBestGroup(signups []SignupEntry, keystoneUsers map[string]bool) (tank
 				selectedUsers[userID] = true
 			}
 
-			// Early exit if all roles filled
 			if tank != nil && healer != nil && len(dps) == 2 {
 				return
 			}
 		}
 
-		// Second: select flexible users (those who can do MULTIPLE roles) with priority Tank > Heal > DPS
-		for _, userID := range flexibleUsers {
-			if selectedUsers[userID] {
-				continue
-			}
-
-			// Assign based on priority and availability
+		// 2nd pass: assign flexible users (FIFO within flexible group)
+		for _, userID := range flexibleUserIDs {
+			// Try to assign with priority: Tank > Heal > DPS
 			if tank == nil && userRoles[userID]["TankR"] {
 				tank = userObjects[userID]
 				selectedUsers[userID] = true
@@ -428,7 +427,6 @@ func selectBestGroup(signups []SignupEntry, keystoneUsers map[string]bool) (tank
 				selectedUsers[userID] = true
 			}
 
-			// Early exit if all roles filled
 			if tank != nil && healer != nil && len(dps) == 2 {
 				return
 			}
@@ -445,7 +443,7 @@ func selectBestGroup(signups []SignupEntry, keystoneUsers map[string]bool) (tank
 	if canFormGroup(false) {
 		selectedUsers := make(map[string]bool)
 
-		// First select from keystoneUsers
+		// First: process keystoneUsers with two passes (constrained, then flexible)
 		seenUsers := make(map[string]bool)
 		var constrainedKeystones []string
 		var flexibleKeystones []string
@@ -457,25 +455,25 @@ func selectBestGroup(signups []SignupEntry, keystoneUsers map[string]bool) (tank
 			}
 			seenUsers[userID] = true
 
-			rolesCount := 0
+			roleCount := 0
 			if userRoles[userID]["TankR"] {
-				rolesCount++
+				roleCount++
 			}
 			if userRoles[userID]["HealR"] {
-				rolesCount++
+				roleCount++
 			}
 			if userRoles[userID]["DpsR"] {
-				rolesCount++
+				roleCount++
 			}
 
-			if rolesCount == 1 {
+			if roleCount == 1 {
 				constrainedKeystones = append(constrainedKeystones, userID)
-			} else {
+			} else if roleCount > 1 {
 				flexibleKeystones = append(flexibleKeystones, userID)
 			}
 		}
 
-		// Select constrained keystoneUsers first
+		// Assign constrained keystones first
 		for _, userID := range constrainedKeystones {
 			if tank == nil && userRoles[userID]["TankR"] {
 				tank = userObjects[userID]
@@ -487,9 +485,13 @@ func selectBestGroup(signups []SignupEntry, keystoneUsers map[string]bool) (tank
 				dps = append(dps, userObjects[userID])
 				selectedUsers[userID] = true
 			}
+
+			if tank != nil && healer != nil && len(dps) == 2 {
+				return
+			}
 		}
 
-		// Then select flexible keystoneUsers
+		// Then assign flexible keystones
 		for _, userID := range flexibleKeystones {
 			if tank == nil && userRoles[userID]["TankR"] {
 				tank = userObjects[userID]
@@ -507,7 +509,7 @@ func selectBestGroup(signups []SignupEntry, keystoneUsers map[string]bool) (tank
 			}
 		}
 
-		// If still not complete, select from non-keystoneUsers
+		// Then: process non-keystoneUsers with two passes (constrained, then flexible)
 		seenUsers = make(map[string]bool)
 		var constrainedNonKeystones []string
 		var flexibleNonKeystones []string
@@ -519,25 +521,25 @@ func selectBestGroup(signups []SignupEntry, keystoneUsers map[string]bool) (tank
 			}
 			seenUsers[userID] = true
 
-			rolesCount := 0
+			roleCount := 0
 			if userRoles[userID]["TankR"] {
-				rolesCount++
+				roleCount++
 			}
 			if userRoles[userID]["HealR"] {
-				rolesCount++
+				roleCount++
 			}
 			if userRoles[userID]["DpsR"] {
-				rolesCount++
+				roleCount++
 			}
 
-			if rolesCount == 1 {
+			if roleCount == 1 {
 				constrainedNonKeystones = append(constrainedNonKeystones, userID)
-			} else {
+			} else if roleCount > 1 {
 				flexibleNonKeystones = append(flexibleNonKeystones, userID)
 			}
 		}
 
-		// Select constrained non-keystoneUsers
+		// Assign constrained non-keystones
 		for _, userID := range constrainedNonKeystones {
 			if tank == nil && userRoles[userID]["TankR"] {
 				tank = userObjects[userID]
@@ -549,9 +551,13 @@ func selectBestGroup(signups []SignupEntry, keystoneUsers map[string]bool) (tank
 				dps = append(dps, userObjects[userID])
 				selectedUsers[userID] = true
 			}
+
+			if tank != nil && healer != nil && len(dps) == 2 {
+				return
+			}
 		}
 
-		// Finally select flexible non-keystoneUsers
+		// Finally assign flexible non-keystones
 		for _, userID := range flexibleNonKeystones {
 			if tank == nil && userRoles[userID]["TankR"] {
 				tank = userObjects[userID]
