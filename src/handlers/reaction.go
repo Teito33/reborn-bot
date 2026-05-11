@@ -93,7 +93,7 @@ func LoadSessions() error {
 		if p.BoostInfo.BoostType == "" {
 			p.BoostInfo.BoostType = "m+"
 		}
-		
+
 		session := &SignupSession{
 			MessageID: p.MessageID,
 			BoostInfo: p.BoostInfo,
@@ -306,11 +306,11 @@ func parseLevelingCommand(content string) (BoostInfo, error) {
 // Role priority: Tank > Healer > DPS
 func selectBestGroup(signups []SignupEntry, keystoneUsers map[string]bool) (tank *discordgo.User, healer *discordgo.User, dps []*discordgo.User) {
 	dps = make([]*discordgo.User, 0)
-	
+
 	// Build a map of all roles clicked by each user
 	userRoles := make(map[string]map[string]bool)
 	userObjects := make(map[string]*discordgo.User)
-	
+
 	for _, signup := range signups {
 		userID := signup.User.ID
 		if userRoles[userID] == nil {
@@ -319,12 +319,12 @@ func selectBestGroup(signups []SignupEntry, keystoneUsers map[string]bool) (tank
 		}
 		userRoles[userID][signup.Role] = true
 	}
-	
+
 	// Helper function to verify if we can form a complete group from available users
 	canFormGroup := func(keystoneOnly bool) bool {
 		var hasTank, hasHeal bool
 		dpsCount := 0
-		
+
 		for userID, roles := range userRoles {
 			// Filter by keystone status if needed
 			if keystoneOnly && !keystoneUsers[userID] {
@@ -333,7 +333,7 @@ func selectBestGroup(signups []SignupEntry, keystoneUsers map[string]bool) (tank
 			if !keystoneOnly && keystoneUsers[userID] {
 				continue
 			}
-			
+
 			if roles["TankR"] {
 				hasTank = true
 			}
@@ -344,26 +344,26 @@ func selectBestGroup(signups []SignupEntry, keystoneUsers map[string]bool) (tank
 				dpsCount++
 			}
 		}
-		
+
 		return hasTank && hasHeal && dpsCount >= 2
 	}
-	
+
 	// Helper function to select users for a group
 	selectUsersFromGroup := func(keystoneOnly bool) {
 		selectedUsers := make(map[string]bool)
-		
+
 		// Collect unique users in FIFO order
 		seenUsers := make(map[string]bool)
 		var orderedUsers []*discordgo.User
 		var orderedUserIDs []string
-		
+
 		for _, signup := range signups {
 			userID := signup.User.ID
 			if seenUsers[userID] {
 				continue
 			}
 			seenUsers[userID] = true
-			
+
 			// Filter by keystone status if needed
 			if keystoneOnly && !keystoneUsers[userID] {
 				continue
@@ -371,13 +371,13 @@ func selectBestGroup(signups []SignupEntry, keystoneUsers map[string]bool) (tank
 			if !keystoneOnly && keystoneUsers[userID] {
 				continue
 			}
-			
+
 			if !selectedUsers[userID] {
 				orderedUsers = append(orderedUsers, signup.User)
 				orderedUserIDs = append(orderedUserIDs, userID)
 			}
 		}
-		
+
 		// Select users based on role priority: Tank > Healer > DPS
 		for i, userID := range orderedUserIDs {
 			if tank == nil && selectedUsers[userID] == false && userRoles[userID]["TankR"] {
@@ -390,30 +390,30 @@ func selectBestGroup(signups []SignupEntry, keystoneUsers map[string]bool) (tank
 				dps = append(dps, orderedUsers[i])
 				selectedUsers[userID] = true
 			}
-			
+
 			// Early exit if all roles filled
 			if tank != nil && healer != nil && len(dps) == 2 {
 				return
 			}
 		}
 	}
-	
+
 	// First pass: check if keystoneUsers can form a complete group
 	if canFormGroup(true) {
 		selectUsersFromGroup(true)
 		return
 	}
-	
+
 	// Second pass: check if combining keystoneUsers + non-keystoneUsers can form a group
 	if canFormGroup(false) {
 		// Reset and select from keystoneUsers first
 		selectedUsers := make(map[string]bool)
-		
+
 		// Collect unique keystone users in FIFO order
 		seenUsers := make(map[string]bool)
 		var orderedUsers []*discordgo.User
 		var orderedUserIDs []string
-		
+
 		for _, signup := range signups {
 			userID := signup.User.ID
 			if !keystoneUsers[userID] || seenUsers[userID] {
@@ -423,7 +423,7 @@ func selectBestGroup(signups []SignupEntry, keystoneUsers map[string]bool) (tank
 			orderedUsers = append(orderedUsers, signup.User)
 			orderedUserIDs = append(orderedUserIDs, userID)
 		}
-		
+
 		// Select keystone users with priority
 		for i, userID := range orderedUserIDs {
 			if tank == nil && userRoles[userID]["TankR"] {
@@ -437,12 +437,12 @@ func selectBestGroup(signups []SignupEntry, keystoneUsers map[string]bool) (tank
 				selectedUsers[userID] = true
 			}
 		}
-		
+
 		// Then select from non-keystone users to complete the group
 		seenUsers = make(map[string]bool)
 		orderedUsers = make([]*discordgo.User, 0)
 		orderedUserIDs = make([]string, 0)
-		
+
 		for _, signup := range signups {
 			userID := signup.User.ID
 			if keystoneUsers[userID] || seenUsers[userID] || selectedUsers[userID] {
@@ -452,7 +452,7 @@ func selectBestGroup(signups []SignupEntry, keystoneUsers map[string]bool) (tank
 			orderedUsers = append(orderedUsers, signup.User)
 			orderedUserIDs = append(orderedUserIDs, userID)
 		}
-		
+
 		// Select non-keystone users with priority
 		for i, userID := range orderedUserIDs {
 			if tank == nil && userRoles[userID]["TankR"] {
@@ -465,14 +465,14 @@ func selectBestGroup(signups []SignupEntry, keystoneUsers map[string]bool) (tank
 				dps = append(dps, orderedUsers[i])
 				selectedUsers[userID] = true
 			}
-			
+
 			// Early exit if all roles filled
 			if tank != nil && healer != nil && len(dps) == 2 {
 				return
 			}
 		}
 	}
-	
+
 	return
 }
 
@@ -1092,15 +1092,15 @@ func displaySelectedPlayers(s *discordgo.Session, channelID string, tank *discor
 	message := fmt.Sprintf("<@%s>\n\n**Boost Group Selected!**\n\n", creatorID)
 
 	if tank != nil {
-		message += fmt.Sprintf("Tank: <@%s>\n", tank.ID)
+		message += fmt.Sprintf("<:TankR:1031701109540147211> <@%s>\n", tank.ID)
 	}
 
 	if healer != nil {
-		message += fmt.Sprintf("Healer: <@%s>\n", healer.ID)
+		message += fmt.Sprintf("<:HealR:1031701243342630992> <@%s>\n", healer.ID)
 	}
 
 	if len(dps) > 0 {
-		message += "DPS: "
+		message += "<:DpsR:1031701306475290675> "
 		for i, dpsPlayer := range dps {
 			if i > 0 {
 				message += ", "
