@@ -326,11 +326,9 @@ func selectBestGroup(signups []SignupEntry, keystoneUsers map[string]bool) (tank
 		dpsCount := 0
 
 		for userID, roles := range userRoles {
-			// Filter by keystone status if needed
+			// If keystoneOnly=true, only check keystoneUsers
+			// If keystoneOnly=false, check everyone (keystones + non-keystones)
 			if keystoneOnly && !keystoneUsers[userID] {
-				continue
-			}
-			if !keystoneOnly && keystoneUsers[userID] {
 				continue
 			}
 
